@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CKT</string>
+
+    <!-- Vehicle types -->
+    <string name="vehicle_combine">Combine</string>
+    <string name="vehicle_kart">Grain Kart</string>
+    <string name="vehicle_truck">Truck</string>
+
+    <!-- Login Page -->
+    <string name="login_message">Vehicle Information</string>
+    <string name="login_type_message">Type: </string>
+    <string name="login_id_message">ID: </string>
+    <string name="login_id_hint">Plate No. preferred</string>
+    <string name="saved_last_type">savedLastType</string>
+    <string name="saved_last_id">savedLastId</string>
+    <string name="toast_already_registered">This ID has been registered as %s.\nTry a new one instead.</string>
+    <string name="toast_type_missing">Vehicle type?</string>
+    <string name="toast_id_missing">Vehicle ID?</string>
+    <string name="color_activity_combine">colorActivityCombine</string>
+    <string name="color_activity_kart">colorActivityKart</string>
+    <string name="color_activity_truck">colorActivityTruck</string>
+    <string name="shared_preference_file_key">edu.purdue.combinekarttruck.shared_preference_file</string>
+    <string name="filling_space">" "</string>
+    <string name="warning_toast_unknown_vehicle">Warning! The vehicle type regestered with this ID is unknown!\nThe preference file may be corrupted!/nYou can try another ID.</string>
+
+    <!-- Pick ID Page -->
+    <string name="pick_registered_ids">Pick an ID</string>
+
+    <color name="color_login_ok">#5f00bfff</color>
+    <!-- GPS Log -->
+    <string name="gps_update_interval">1000</string>
+    <string name="gps_data">GPS data: </string>
+    <string name="gps_data_log_path"></string>
+    <string name="gps_log_file_path_combine">/CKT/Combines/</string>
+    <string name="gps_log_file_path_kart">/CKT/Karts/</string>
+    <string name="gps_log_file_path_truck">/CKT/Trucks/</string>
+    <string name="gps_log_file_dir_create_error">Could not create directories!\n</string>
+    <string name="gps_log_file_external_storage_error">Could not find the external storage!\n</string>
+    <string name="gps_log_file_create_error">Could not create log file!\n</string>
+    <string name="gps_log_file_close_error">Could not close log file!\n</string>
+    <string name="gps_log_file_write_error">Could not log GPS data!\n</string>
+    <string name="gps_log_file_head">"% Time, GPS time, lat, lon, altitude, speed, bearing, accuracy\n"</string>
+    <string name="gps_please_enable_it">Your GPS seems to be disabled. Please check and enalbe it.</string>
+    <string name="gps_warning_may_not_working">Warning! The location logger may crash without GPS service.</string>
+
+    <!-- GPS Layout -->
+    <string name="lat_gps_text_view_default">Lat: Loading…</string>
+    <string name="lon_gps_text_view_default">Lon: Loading…</string>
+    <string name="altitude_gps_text_view_default">Altitude: Loading…</string>
+    <string name="speed_gps_text_view_default">Speed: Loading…</string>
+    <string name="bearing_gps_text_view_default">Bearing: Loading…</string>
+    <string name="accuracy_gps_text_view_default">Accuracy: Loading…</string>
+    <string name="time_gps_text_view_default">Time: Loading…</string>
+
+    <!-- Vechicle Specific -->
+    <string name="combine_state">Combine State</string>
+    <string name="ckt_state">CKT state: </string>
+    <string name="ckt_state_loading">Loading…</string>
+    <string name="ckt_state_recording">Recording…</string>
+    <string name="ckt_state_initializing">Initializing…</string>
+    <string name="vehicle_state_running">Running…</string>
+    <string name="vehicle_state_unloading">Unloading…</string>
+    <string name="kart_not_unloading">Start to unload</string>
+    <string name="kart_unloading">Stop unloading</string>
+    <string name="kart_done_unloading">Have unloaded all?</string>
+    <string name="truck_take_a_picture">Take a picture\nfor the ticket</string>
+    <string name="truck_take_a_picture_oneline">Take a picture for the ticket</string>
+    <string name="truck_take_a_picture_capture">Capture</string>
+    <string name="truck_image_file_create_error">Could not create image file!\n</string>
+    <string name="truck_image_file_load_error">Could not load image file!\n</string>
+    <string name="truck_temp_image_create_error">Could not create the temp image file!\n</string>
+
+    <color name="kart_not_unloading">#afff4444</color>
+    <color name="kart_unloading">#af33b5e5</color>
+    <color name="truck_take_a_picture">#afdddddd</color>
+
+    <!-- Confirmation Buttons -->
+    <string name="button_yes">Yes</string>
+    <string name="button_no">No</string>
+    <string name="button_ok">OK</string>
+    <string name="button_confirm">Confirm</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_pick_from_a_list">Registration History</string>
+
+    <!-- Others -->
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_combine">CombineAcitivity</string>
+    <string name="title_activity_simplified_combine">SimplifiedCombineAcitivity</string>
+    <string name="title_activity_kart">KartActivity</string>
+    <string name="title_activity_truck">TruckActivity</string>
+
+</resources>

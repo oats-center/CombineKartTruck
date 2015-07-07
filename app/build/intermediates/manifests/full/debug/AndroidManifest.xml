@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="edu.purdue.combinekarttruck"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="11"
+        android:targetSdkVersion="21" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name="edu.purdue.combinekarttruck.MainLoginActivity"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="stateAlwaysHidden" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="edu.purdue.combinekarttruck.BasicGpsLoggingActivity"
+            android:label="@string/title_activity_combine"
+            android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.purdue.combinekarttruck.MainActivityLogin" />
+        </activity>
+        <activity
+            android:name="edu.purdue.combinekarttruck.SimplifiedCombineActivity"
+            android:label="@string/title_activity_simplified_combine"
+            android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.purdue.combinekarttruck.MainLoginActivity" />
+        </activity>
+        <activity
+            android:name="edu.purdue.combinekarttruck.CombineActivity"
+            android:label="@string/title_activity_combine"
+            android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
+            android:screenOrientation="landscape" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.purdue.combinekarttruck.MainLoginActivity" />
+        </activity>
+        <activity
+            android:name="edu.purdue.combinekarttruck.KartActivity"
+            android:label="@string/title_activity_kart"
+            android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
+            android:screenOrientation="landscape" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="MainLoginActivity" />
+        </activity>
+        <activity
+            android:name="edu.purdue.combinekarttruck.TruckActivity"
+            android:label="@string/title_activity_truck"
+            android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
+            android:screenOrientation="landscape" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.purdue.combinekarttruck.MainLoginActivity" />
+        </activity>
+    </application>
+
+</manifest>
