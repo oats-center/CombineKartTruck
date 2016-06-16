@@ -42,6 +42,8 @@
     <string name="gps_log_file_close_error">Could not close log file!\n</string>
     <string name="gps_log_file_write_error">Could not log GPS data!\n</string>
     <string name="gps_log_file_head">"% Time, GPS time, lat, lon, altitude, speed, bearing, accuracy\n"</string>
+    <string name="signal_log_file_head">"% Time, GPS time, lat, lon, altitude, speed, bearing, accuracy, gsmIds, gsmDbms, gsmTimeStamps, cdmaIds, cdmaDbms, cdmaTimeStamps, lteIds, lteDbms, lteTimeStamps\n"</string>
+    <string name="wifi_log_file_head">"% Time, GPS time, lat, lon, altitude, speed, bearing, accuracy, connectedId, RSSI \n"</string>
     <string name="gps_please_enable_it">Your GPS seems to be disabled. Please check and enalbe it.</string>
     <string name="gps_warning_may_not_working">Warning! The location logger may crash without GPS service.</string>
 

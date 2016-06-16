@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 23
     buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "edu.purdue.combinekarttruck"
-        minSdkVersion 8
-        targetSdkVersion 19
+        minSdkVersion 17
+        targetSdkVersion 23
     }
 
     buildTypes {

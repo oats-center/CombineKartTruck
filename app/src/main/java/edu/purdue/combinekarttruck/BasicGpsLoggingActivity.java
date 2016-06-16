@@ -1,11 +1,5 @@
 package edu.purdue.combinekarttruck;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,10 +7,20 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.CellInfo;
+import android.telephony.CellInfoCdma;
+import android.telephony.CellInfoGsm;
+import android.telephony.CellInfoLte;
+import android.telephony.CellSignalStrengthCdma;
+import android.telephony.CellSignalStrengthGsm;
+import android.telephony.CellSignalStrengthLte;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,9 +30,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
 /*
- * The activity for GPS data recording only.
- * 
+ * The activity for GPS data recording (also extended to record cell and Wifi signal strength).
+ *
  * @author: Yaguang Zhang
  * Reference: Stephan Williams' LogAccelGpsActivity project.
  * Available at https://github.com/OATS-Group/android-logger
@@ -36,12 +47,22 @@ import android.widget.Toast;
 
 public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		LocationListener {
+	// For logging the Wifi strength.
+	private String HOST_SSID = ;
+
+	private boolean LOG_WIFI_FLAG = true;
+	private WifiManager wifiManager;
+
+	// Note: signal here actually means cell signal, compared to the Wifi Signal above.
+	private boolean LOG_SIGNAL_FLAG = true;
+	private TelephonyManager telephonyManager;
+
 	private boolean LOG_STATE_FLAG = true;
 
-	private String loginId, logFilePath, logFileNameGps, logFileNameState;
+	private String loginId, logFilePath, logFileNameGps, logFileNameState, logFileNameSignal, logFileNameWifi;
 
-	private File mFileGps, mFileState;
-	private FileWriter mLogGps, mLogState;
+	private File mFileGps, mFileState, mFileSignal, mFileWifi;
+	private FileWriter mLogGps, mLogState, mLogSignal, mLogWifi;
 
 	private LocationManager mLocationManager;
 	private TextView textViewTime;
@@ -59,12 +80,28 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		return logFilePath;
 	}
 
+	public File getMFileGps() {
+		return mFileGps;
+	}
+
+	public File getMFileState() {
+		return mFileState;
+	}
+
 	public FileWriter getMLogGPS() {
 		return mLogGps;
 	}
 
 	public FileWriter getMLogState() {
 		return mLogState;
+	}
+
+	public FileWriter getMLogSignal() {
+		return mLogSignal;
+	}
+
+	public FileWriter getMLogWifi() {
+		return mLogWifi;
 	}
 
 	public SimpleDateFormat getFormatterClock() {
@@ -77,6 +114,8 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
 		actionBarActivityOnCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_basic_gps_logging);
@@ -141,8 +180,8 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		mLocationManager.requestLocationUpdates(
 				LocationManager.NETWORK_PROVIDER, 0, 0, this);
-		mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-				0, 0, this);
+		mLocationManager.requestLocationUpdates(
+				LocationManager.GPS_PROVIDER, 0, 0, this);
 	}
 
 	public String getLoginType() {
@@ -165,6 +204,14 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	protected void onResume() {
 		super.onResume();
 
+		if(LOG_WIFI_FLAG){
+			wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+		}
+
+		if(LOG_SIGNAL_FLAG) {
+			telephonyManager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+		}
+
 		// Start the timer textView.
 		textViewTime = ((TextView) findViewById(R.id.textViewTime));
 		formatterClock = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss",
@@ -186,7 +233,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 						});
 					}
 				} catch (Exception e) {
-					Log.e("BasicGpsLoggingTimerThreadInterrupted", e.toString());
+					Log.e("BasicGpsLogTimer", e.toString());
 				}
 			}
 		};
@@ -233,7 +280,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
+								 Bundle savedInstanceState) {
 			View rootView = inflater.inflate(
 					R.layout.fragment_basic_gps_logging, container, false);
 			return rootView;
@@ -280,12 +327,111 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 					+ location.getLongitude() + ", " + location.getAltitude()
 					+ ", " + location.getSpeed() + ", " + location.getBearing()
 					+ ", " + location.getAccuracy() + "\n");
+
+			// Make sure that the data is recorded immediately so that the auto sync (e.g. for Goolge
+			// Drive) works.
+			mLogGps.flush();
+			mFileGps.setLastModified(cur_time);
 		} catch (IOException e) {
 			MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-					getString(R.string.gps_log_file_write_error));
+					"Error writing into the GPS log file!");
 			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-			Log.e("BasicGpsLoggingLocationChangedWrite", e.toString());
+			Log.e("BasicGpsLogLocChanged", e.toString());
 		}
+
+		// Wifi strength logger.
+		if(LOG_WIFI_FLAG){
+			try {
+				WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+				String connectedId = wifiInfo.getSSID();
+				int RSSI = wifiInfo.getRssi();
+
+				mLogWifi.write(formatterClock.format(cur_time) + ", " + cur_time
+						+ ", " + location.getLatitude() + ", "
+						+ location.getLongitude() + ", " + location.getAltitude()
+						+ ", " + location.getSpeed() + ", " + location.getBearing()
+						+ ", " + location.getAccuracy() + ", "
+						+ connectedId + ", " + RSSI + "\n");
+
+				// Make sure that the data is recorded immediately so that the auto sync (e.g. for Google
+				// Drive) works.
+				mLogWifi.flush();
+				mFileWifi.setLastModified(cur_time);
+			} catch (IOException e) {
+				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
+						"Error writing into the Wifi strength file!");
+				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+				Log.e("BasicWifiChanged", e.toString());
+			}
+		}
+
+		// Cell signal strength logger.
+		if(LOG_SIGNAL_FLAG) {
+			ArrayList<Integer> gsmDbms = new ArrayList<>();
+			ArrayList<Integer> cdmaDbms = new ArrayList<>();
+			ArrayList<Integer> lteDbms = new ArrayList<>();
+
+			ArrayList<String> gsmIds = new ArrayList<>();
+			ArrayList<String> cdmaIds = new ArrayList<>();
+			ArrayList<String> lteIds = new ArrayList<>();
+
+			ArrayList<Long> gsmTimeStamps = new ArrayList<>();
+			ArrayList<Long> cdmaTimeStamps = new ArrayList<>();
+			ArrayList<Long> lteTimeStamps = new ArrayList<>();
+
+			// Also log the signal strength.
+			try {
+
+				for (final CellInfo info : telephonyManager.getAllCellInfo()) {
+					if (info instanceof CellInfoGsm) {
+						final CellSignalStrengthGsm gsm = ((CellInfoGsm) info).getCellSignalStrength();
+						// do what you need
+						gsmDbms.add(gsm.getDbm());
+						gsmIds.add(((CellInfoGsm) info).getCellIdentity().toString());
+						gsmTimeStamps.add(info.getTimeStamp());
+
+					} else if (info instanceof CellInfoCdma) {
+						final CellSignalStrengthCdma cdma = ((CellInfoCdma) info).getCellSignalStrength();
+						// do what you need
+						cdmaDbms.add(cdma.getDbm());
+						cdmaIds.add(((CellInfoCdma) info).getCellIdentity().toString());
+						cdmaTimeStamps.add(info.getTimeStamp());
+					} else if (info instanceof CellInfoLte) {
+						final CellSignalStrengthLte lte = ((CellInfoLte) info).getCellSignalStrength();
+						// do what you need
+						lteDbms.add(lte.getDbm());
+						lteIds.add(((CellInfoLte) info).getCellIdentity().toString());
+						lteTimeStamps.add(info.getTimeStamp());
+					} else {
+						throw new Exception("Unknown type of cell signal!");
+					}
+				}
+			} catch (Exception e) {
+				Log.e("SignalStrengthLogger", "Unable to obtain cell signal information", e);
+			}
+
+			try {
+				mLogSignal.write(formatterClock.format(cur_time) + ", " + cur_time
+						+ ", " + location.getLatitude() + ", "
+						+ location.getLongitude() + ", " + location.getAltitude()
+						+ ", " + location.getSpeed() + ", " + location.getBearing()
+						+ ", " + location.getAccuracy() + ", "
+						+ gsmIds + ", " + gsmDbms + ", " + gsmTimeStamps + ", "
+						+ cdmaIds + ", " + cdmaDbms + ", " + cdmaTimeStamps + ", "
+						+ lteIds + ", " + lteDbms + ", " + lteTimeStamps + "\n");
+
+				// Make sure that the data is recorded immediately so that the auto sync (e.g. for Google
+				// Drive) works.
+				mLogSignal.flush();
+				mFileSignal.setLastModified(cur_time);
+			} catch (IOException e) {
+				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
+						"Error writing into the signal strength file!");
+				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+				Log.e("BasicSignalChanged", e.toString());
+			}
+		}
+
 	}
 
 	@Override
@@ -326,9 +472,10 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 			MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
 					getString(R.string.gps_log_file_create_error));
 			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-			Log.e("BasicGpsLoggingCreateLogAndWrite", e.toString());
+			Log.e("BasicGpsLogCreateLog", e.toString());
 		}
 
+		// Create the log file for states.
 		if (LOG_STATE_FLAG) {
 			if (logFileNameState == null) {
 				formatterUnderline = new SimpleDateFormat(
@@ -347,9 +494,65 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 			} catch (IOException e) {
 				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
+						"Error: Couldn't create the state log file!");
 				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("BasicStateLoggingCreateLogAndWrite", e.toString());
+				Log.e("BasicStateLogCreate", e.toString());
+			}
+		}
+
+		// Create the log file for Wifi strength..
+		if (LOG_WIFI_FLAG) {
+			if (logFileNameWifi == null) {
+				formatterUnderline = new SimpleDateFormat(
+						"yyyy_MM_dd_HH_mm_ss", java.util.Locale.getDefault());
+				Date date = new Date();
+				logFileNameWifi = "wifi_" + formatterUnderline.format(date)
+						+ ".txt";
+			}
+
+			try {
+				mFileWifi = new File(logFilePath, logFileNameWifi);
+
+				mLogWifi = new FileWriter(mFileWifi);
+				mLogWifi.write("% " + getLoginType() + " " + loginId + ": "
+						+ logFileNameWifi + "\n");
+				mLogWifi.write("% " + getLoginType() + " " + loginId + ": "
+						+ logFileNameGps + "\n"
+						+ getString(R.string.wifi_log_file_head));
+
+			} catch (IOException e) {
+				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
+						"Error: Couldn't create the wifi log file!");
+				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+				Log.e("BasicWifiLogCreate", e.toString());
+			}
+		}
+
+		// Create the log file for cell signal strength..
+		if (LOG_SIGNAL_FLAG) {
+			if (logFileNameSignal == null) {
+				formatterUnderline = new SimpleDateFormat(
+						"yyyy_MM_dd_HH_mm_ss", java.util.Locale.getDefault());
+				Date date = new Date();
+				logFileNameSignal = "signal_" + formatterUnderline.format(date)
+						+ ".txt";
+			}
+
+			try {
+				mFileSignal = new File(logFilePath, logFileNameSignal);
+
+				mLogSignal = new FileWriter(mFileSignal);
+				mLogSignal.write("% " + getLoginType() + " " + loginId + ": "
+						+ logFileNameSignal + "\n");
+				mLogSignal.write("% " + getLoginType() + " " + loginId + ": "
+						+ logFileNameGps + "\n"
+						+ getString(R.string.signal_log_file_head));
+
+			} catch (IOException e) {
+				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
+						"Error: Couldn't create the signal log file!");
+				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+				Log.e("BasicSignalLogCreate", e.toString());
 			}
 		}
 	}
@@ -367,7 +570,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 			MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
 					getString(R.string.gps_log_file_write_error));
 			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-			Log.e("BasicGpsLoggingOnStropWrite", e.toString());
+			Log.e("BasicGpsLogOnStopWrite", e.toString());
 		}
 
 		logFileNameGps = null;
@@ -387,19 +590,25 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 			MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
 					getString(R.string.gps_log_file_close_error));
 			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-			Log.e("BasicGpsLoggingOnStropCloseLog", e.toString());
+			Log.e("BasicGpsLogOnStopClose", e.toString());
 		}
 
-		if (LOG_STATE_FLAG) {
-			logFileNameState = null;
+		logFileNameState = closeExtraLogFile(LOG_STATE_FLAG, logFileNameState, mFileState, mLogState);
+		logFileNameWifi = closeExtraLogFile(LOG_WIFI_FLAG, logFileNameWifi, mFileWifi, mLogWifi);
+		logFileNameSignal = closeExtraLogFile(LOG_SIGNAL_FLAG, logFileNameSignal, mFileSignal, mLogSignal);
+	}
+
+	private String closeExtraLogFile(boolean logFlag, String logFileName, File mFile, FileWriter mLog) {
+		if (logFlag) {
+
 			try {
 
-				mLogState.close();
+				mLog.close();
 
 				// Make the new file available for other apps.
 				Intent mediaScanIntent = new Intent(
 						Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-				Uri contentUri = Uri.fromFile(mFileState);
+				Uri contentUri = Uri.fromFile(mFile);
 				mediaScanIntent.setData(contentUri);
 				this.sendBroadcast(mediaScanIntent);
 
@@ -407,8 +616,12 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
 						getString(R.string.gps_log_file_close_error));
 				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("BasicStateLoggingOnStropCloseLog", e.toString());
+				Log.e("BasicLogOnStopClose", e.toString());
 			}
+
+			return null;
+		} else {
+			return logFileName;
 		}
 	}
 }

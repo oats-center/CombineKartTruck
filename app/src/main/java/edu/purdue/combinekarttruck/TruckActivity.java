@@ -2,9 +2,9 @@ package edu.purdue.combinekarttruck;
 
 /*
  * The activity for truck.
- * 
+ *
  * @author: Yaguang Zhang
- * 
+ *
  */
 
 import java.io.BufferedInputStream;
