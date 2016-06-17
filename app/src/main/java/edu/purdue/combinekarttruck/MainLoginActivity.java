@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainLoginActivity extends ActionBarActivity {
+
 	// Collected vehicle info.
 	private String loginType, loginId;
 	private String[] registeredIdStrings;
@@ -84,6 +85,13 @@ public class MainLoginActivity extends ActionBarActivity {
 					getString(R.string.gps_warning_may_not_working));
 
 		}
+
+		Utils.initDevDepFolderPath(this,
+				this.getSharedPreferences(
+						getString(R.string.shared_preference_file_key),
+						Context.MODE_PRIVATE
+				)
+		);
 	}
 
 	private void buildAlertMessageNoGps(final Activity activity) {
@@ -149,6 +157,10 @@ public class MainLoginActivity extends ActionBarActivity {
 		}
 
 		autoFillVehicleInfo();
+
+		// Connect to the access point specified in Utils if necessary.
+		Utils.reconnectToAccessPoint(Utils.getHostSsid(), Utils.getHostPasswordD(),
+				Utils.isLockToHostSsid(), this);
 	}
 
 	public void autoFillVehicleInfo() {

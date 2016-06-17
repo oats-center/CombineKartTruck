@@ -47,8 +47,6 @@ import java.util.Date;
 
 public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		LocationListener {
-	// For logging the Wifi strength.
-	private String HOST_SSID = ;
 
 	private boolean LOG_WIFI_FLAG = true;
 	private WifiManager wifiManager;
@@ -346,6 +344,15 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 				String connectedId = wifiInfo.getSSID();
 				int RSSI = wifiInfo.getRssi();
 
+				if(Utils.isLockToHostSsid()){
+					// Try to lock to the specified SSID.
+					if (!connectedId.equals("\""+Utils.getHostSsid()+"\"")){
+						Utils.reconnectToAccessPoint(Utils.getHostSsid(), Utils.getHostPasswordD(),
+								Utils.isLockToHostSsid(), this);
+						throw new IOException("Connected to a wrong access point!");
+					}
+				}
+
 				mLogWifi.write(formatterClock.format(cur_time) + ", " + cur_time
 						+ ", " + location.getLatitude() + ", "
 						+ location.getLongitude() + ", " + location.getAltitude()
@@ -357,6 +364,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 				// Drive) works.
 				mLogWifi.flush();
 				mFileWifi.setLastModified(cur_time);
+
 			} catch (IOException e) {
 				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
 						"Error writing into the Wifi strength file!");

@@ -131,7 +131,7 @@
         jar="C:\Users\Zyglabs\Documents\GitHub\CombineKartTruck\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
         jumboMode="true"
         revision="21.1.2"
-        sha1="609a726a592636f46b1ddcd10cee8a665845267f">
+        sha1="5690d20bd8320f8ff47d97a944e6fc1a7d9f3675">
         <dex dex="C:\Users\Zyglabs\Documents\GitHub\CombineKartTruck\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_d9981a036cb027b765d06bfd28c4d111c1c457f2\classes.dex" />
     </item>
     <item
@@ -257,7 +257,7 @@
         jar="C:\Users\Zyglabs\Documents\GitHub\CombineKartTruck\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
         jumboMode="true"
         revision="21.1.2"
-        sha1="e81d07efe91b88ccb2ddc6e262de520e5f6ff21a">
+        sha1="4b2d69cef0b83d3d26a4dcd5655ac7d8856e6b2c">
         <dex dex="C:\Users\Zyglabs\Documents\GitHub\CombineKartTruck\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_4454aa76c71dc610f43544bcb6cf2b3725813528\classes.dex" />
     </item>
     <item

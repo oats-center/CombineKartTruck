@@ -24,6 +24,7 @@
     <string name="shared_preference_file_key">edu.purdue.combinekarttruck.shared_preference_file</string>
     <string name="filling_space">" "</string>
     <string name="warning_toast_unknown_vehicle">Warning! The vehicle type regestered with this ID is unknown!\nThe preference file may be corrupted!/nYou can try another ID.</string>
+    <string name="temp_image_create_error">Could not create the temp image file!\n</string>
 
     <!-- Pick ID Page -->
     <string name="pick_registered_ids">Pick an ID</string>
