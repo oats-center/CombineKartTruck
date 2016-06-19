@@ -34,9 +34,9 @@
     <string name="gps_update_interval">1000</string>
     <string name="gps_data">GPS data: </string>
     <string name="gps_data_log_path"></string>
-    <string name="gps_log_file_path_combine">/CKT/Combines/</string>
-    <string name="gps_log_file_path_kart">/CKT/Karts/</string>
-    <string name="gps_log_file_path_truck">/CKT/Trucks/</string>
+    <string name="gps_log_file_path_combine">Combines/</string>
+    <string name="gps_log_file_path_kart">Karts/</string>
+    <string name="gps_log_file_path_truck">Trucks/</string>
     <string name="gps_log_file_dir_create_error">Could not create directories!\n</string>
     <string name="gps_log_file_external_storage_error">Could not find the external storage!\n</string>
     <string name="gps_log_file_create_error">Could not create log file!\n</string>

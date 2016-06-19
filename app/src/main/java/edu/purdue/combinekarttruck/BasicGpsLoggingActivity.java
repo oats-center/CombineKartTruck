@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
@@ -47,6 +48,14 @@ import java.util.Date;
 
 public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		LocationListener {
+
+	public boolean getLogWifiFlag() {
+		return LOG_WIFI_FLAG;
+	}
+
+	public boolean getLogSignalFlag() {
+		return LOG_SIGNAL_FLAG;
+	}
 
 	private boolean LOG_WIFI_FLAG = true;
 	private WifiManager wifiManager;
@@ -158,7 +167,11 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 					.getExternalStorageState())) {
 				File logFileDirFile = new File(logFilePath);
 
-				logFileDirFile.mkdirs();
+				if(!logFileDirFile.exists()) {
+					if (!logFileDirFile.mkdirs()) {
+						Utils.toastStringTextAtCenterWithLargerSize(this, "ERROR: Write to external storage permission denied!");
+					}
+				}
 
 				if (!logFileDirFile.isDirectory()) {
 					MainLoginActivity.toastStringTextAtCenterWithLargerSize(
@@ -176,10 +189,14 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		createLogFiles();
 
 		mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		mLocationManager.requestLocationUpdates(
-				LocationManager.NETWORK_PROVIDER, 0, 0, this);
-		mLocationManager.requestLocationUpdates(
-				LocationManager.GPS_PROVIDER, 0, 0, this);
+		try {
+			mLocationManager.requestLocationUpdates(
+					LocationManager.NETWORK_PROVIDER, 0, 0, this);
+			mLocationManager.requestLocationUpdates(
+					LocationManager.GPS_PROVIDER, 0, 0, this);
+		} catch(SecurityException e) {
+			Log.e("BasicGpsLogging", e.toString());
+		}
 	}
 
 	public String getLoginType() {
@@ -187,7 +204,8 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	}
 
 	public String getPartialLogFilePath() {
-		return getString(R.string.gps_log_file_path_kart);
+		return this.getSharedPref().getString(Utils.SAVED_FOLDER_PATH,
+				null);
 	}
 
 	public String getLogFilePath() {
@@ -292,7 +310,11 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		TextView ckt = ((TextView) findViewById(R.id.textViewCktState));
 		ckt.setText(getString(R.string.ckt_state_loading));
 
-		mLocationManager.removeUpdates(this);
+		try {
+			mLocationManager.removeUpdates(this);
+		} catch(SecurityException e) {
+			Log.e("BasicGpsLogging", e.toString());
+		}
 
 		closeLogFiles();
 	}
@@ -344,12 +366,14 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 				String connectedId = wifiInfo.getSSID();
 				int RSSI = wifiInfo.getRssi();
 
-				if(Utils.isLockToHostSsid()){
-					// Try to lock to the specified SSID.
-					if (!connectedId.equals("\""+Utils.getHostSsid()+"\"")){
+				// Try to lock to the specified SSID.
+				if (!connectedId.equals("\""+Utils.getHostSsid()+"\"")){
+					if(Utils.isLockToHostSsid()){
 						Utils.reconnectToAccessPoint(Utils.getHostSsid(), Utils.getHostPasswordD(),
 								Utils.isLockToHostSsid(), this);
 						throw new IOException("Connected to a wrong access point!");
+					} else {
+
 					}
 				}
 

@@ -29,6 +29,12 @@ public class KartActivity extends BasicGpsLoggingActivity {
 	private boolean kartDoneUnloading = false;
 
 	@Override
+	public String getPartialLogFilePath() {
+		return this.getSharedPref().getString(Utils.SAVED_FOLDER_PATH,
+				null) + getString(R.string.gps_log_file_path_kart);
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		actionBarActivityOnCreate(savedInstanceState);
 
@@ -58,11 +64,6 @@ public class KartActivity extends BasicGpsLoggingActivity {
 	@Override
 	public String getLoginType() {
 		return getString(R.string.vehicle_kart);
-	}
-
-	@Override
-	public String getPartialLogFilePath() {
-		return getString(R.string.gps_log_file_path_kart);
 	}
 
 	@Override

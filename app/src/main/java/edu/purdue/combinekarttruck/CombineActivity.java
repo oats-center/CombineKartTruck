@@ -30,6 +30,12 @@ public class CombineActivity extends BasicGpsLoggingActivity {
 	private boolean combineDoneUnloading = false;
 
 	@Override
+	public String getPartialLogFilePath() {
+		return this.getSharedPref().getString(Utils.SAVED_FOLDER_PATH,
+				null) + getString(R.string.gps_log_file_path_combine);
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		actionBarActivityOnCreate(savedInstanceState);
 
@@ -59,11 +65,6 @@ public class CombineActivity extends BasicGpsLoggingActivity {
 	@Override
 	public String getLoginType() {
 		return getString(R.string.vehicle_combine);
-	}
-
-	@Override
-	public String getPartialLogFilePath() {
-		return getString(R.string.gps_log_file_path_combine);
 	}
 
 	@Override
