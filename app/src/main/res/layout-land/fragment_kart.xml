@@ -188,7 +188,7 @@
 
     <Button
         android:id="@+id/ButtonChangeKartUnloadingState"
-        android:layout_width="400dp"
+        android:layout_width="500dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="@color/kart_not_unloading"

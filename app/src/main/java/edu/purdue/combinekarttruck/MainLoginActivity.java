@@ -6,9 +6,6 @@ package edu.purdue.combinekarttruck;
  * @author: Yaguang Zhang
  */
 
-import java.util.Arrays;
-import java.util.Locale;
-
 import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,6 +29,11 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Arrays;
+import java.util.Locale;
+
+import edu.purdue.combinekarttruck.utils.Utils;
 
 public class MainLoginActivity extends ActionBarActivity {
 	// Collected vehicle info.
@@ -82,8 +84,14 @@ public class MainLoginActivity extends ActionBarActivity {
 		if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 			toastStringTextAtCenterWithLargerSize(this,
 					getString(R.string.gps_warning_may_not_working));
-
 		}
+
+		Utils.initDevDepFolderPath(this,
+				this.getSharedPreferences(
+						getString(R.string.shared_preference_file_key),
+						Context.MODE_PRIVATE
+				)
+		);
 	}
 
 	private void buildAlertMessageNoGps(final Activity activity) {

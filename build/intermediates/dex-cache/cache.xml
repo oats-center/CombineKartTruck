@@ -2,39 +2,186 @@
 <items version="2" >
 
     <item
-        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.0/classes.jar"
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-appindexing/7.5.0/classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="686344a780033e4ba22b926cd225f8d4941247e6">
-        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-6a502cb90a5533d1d446fb2190f8c9c8e6841815.jar" />
+        sha1="f02127a85abd52a2cd526d4c2409f21969f80ee8">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-1d491a768550848e1c872e4fc336ca52e5ae0acc.jar" />
     </item>
     <item
-        jar="/Users/Zyglabs/Documents/Android Studio/sdk/extras/android/m2repository/com/android/support/support-annotations/21.0.0/support-annotations-21.0.0.jar"
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/7.5.0/classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="1a578b9607b36266c63d43a4fa0ab5664dbe911e">
-        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.0-1862167718478e537c10b135671dad4bc7ec5901.jar" />
+        sha1="a78183f30e769a98ab4820794f597763088d3065">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-968fe0a8a7e022c95a80c696b0983402265509d3.jar" />
     </item>
     <item
-        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/6.5.87/classes.jar"
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-cast/7.5.0/classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="dd9247ea0fabe8ee479638c4b4a23e93752be256">
-        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-d9296aa9164ed82be3f7fbf1aaed087b33fe1be6.jar" />
+        sha1="8e3a972f28b8bae817e382257ba177a31bcadbbc">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-70e4ab4fff776303077e6dc2f551d0cb2c055b21.jar" />
     </item>
     <item
-        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.0/libs/internal_impl-21.0.0.jar"
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-gcm/7.5.0/classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="1609e6d42d0480b0f4188e2c29f75388fa12a8f0">
-        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.0-454ea8d69c72dc4e992607168ae74cf504df8d04.jar" />
+        sha1="8d736fefa22d896e84a268354b3ed48a42663150">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-4ca81843714e368daa675d7fa623e9a6452d7ffb.jar" />
     </item>
     <item
-        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/19.1.0/classes.jar"
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-fitness/7.5.0/classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="3499ceba05ca1f6037c6a2fad73df8f636224a28">
-        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-a6e9cb64d719f56d08fbf5335769b1d65cf8e4e8.jar" />
+        sha1="a172852a35ff919e85b9b7f14bbc15c5bee25520">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-79105fd6db5180db8e5e748f75593fdfbe35a84e.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-drive/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="f44d03c138cb6488fdbaa65e3a7e5878861a56d8">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-6171d796e11c7d72844863322951904a2cc02ac0.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.0.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="d84409890828e07d344a3b9b1da545dba9897b51">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-52b50f71b59c8b87611bd7430d1008648536de2c.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-maps/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="06a42becc33232ec0ee125161da68c1829c9f8fd">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-b4733fea874a2c983aec6b54be4c368b6fb3e8ce.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-appstate/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="68c140702c7242d914655bcb3164d9e8c45b84cb">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-d8c1a438aa8f9b3d5c030d940e243f6ccd0ac204.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-appinvite/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="63ec6e9f4fe5482a7447d0f3091b8e543a02554c">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-25071737720496b1051af4e9c83722420b2ddff9.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-identity/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="d405025c600055237c171a0bbabaa49d69696573">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-f803204244363eb7517ad32aa41f9a525ca96d61.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.0.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4e86306289ace4aa0cfec44a05ed2b410d36989d">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-10a248075e6716c86b03178544809ed255af15b9.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.0.0/libs/internal_impl-22.0.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="b5b92f469d515a13d778900f6d50c03d12f35504">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/internal_impl-22.0.0-157f7958093b2ba73a21ce4fc329ef9831e8c6bf.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-location/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="1e98ef3f124bb7a11f8575f9ff5dfea330b61b6f">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-e16beee546f929e1401de1f3a6b8493b7e1b58b2.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-wallet/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="6836d188602ec5382d1967c58b00960eb8ff8773">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-a48b133df58e44c9612473c370a4806ba7f39287.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-wearable/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="69dd177337ead693c408c8dddc9546bb6f1244fa">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-939918dfef989511e019819c9fa7c14ccfa899b0.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-safetynet/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="1a6411087ab88ce5542f593e63a2752b6b0d6f1a">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-7cf8cbdf80a30d70cb5610ec25a204ad7baa3374.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-panorama/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="ba207be21987c11b37d9f8faa08ed6e722569f30">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-e934c70667e97c94ea3fb846bf9f8da124785b29.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-analytics/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="e7b35244f50663b3f8d150714bca9ecd7a290da1">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-0e62e4b11009e1e67a033555e322bd245b1de145.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-nearby/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="6440e5e5cfe368f9bff3c537fb8988048069cb33">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-1441954a2e9ed059eec488a841d40627bb6731fa.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/22.0.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="a1372c17fccacca753d3951d3ad820571cbce075">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-979f4d3fbf9f7f0ab576e50db378b7dcb0de9417.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/22.0.0/libs/internal_impl-22.0.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="ba3df4eb0a630d7de294f0e48d3f9267d279b784">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/internal_impl-22.0.0-a40334ff722dfbb5cbfa4c2f945edf9e898d11e1.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-games/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="02bac2dc792d78241077861566f2c82da955e7fa">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-3e37233ad4e14ec134a773eff035dd794aa47dcd.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-ads/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="29ebc7e04d877062317c8cc0e68b20f0c1fcda66">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-1e4d064854f68578c8b2ee89de7324fd95287319.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Documents/Android Studio/sdk/extras/android/m2repository/com/android/support/support-annotations/22.0.0/support-annotations-22.0.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="685d0b2c590447e85284ed84712cb363ba04eff8">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/support-annotations-22.0.0-51693df6a3e655362395a837052a4947a6b452aa.jar" />
+    </item>
+    <item
+        jar="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-plus/7.5.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="272bc5d7063f24bc3a33ea1d318cde8f31f5ec4c">
+        <dex dex="/Users/Zyglabs/Dropbox/ZygLabsAndroid2015/MyApps/CombineKartTruck/app/build/intermediates/pre-dexed/debug/classes-8f11479f7f62b92163d851f45ab9a2d4c6c3623e.jar" />
     </item>
 
 </items>

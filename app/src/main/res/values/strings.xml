@@ -21,7 +21,7 @@
     <string name="color_activity_combine">colorActivityCombine</string>
     <string name="color_activity_kart">colorActivityKart</string>
     <string name="color_activity_truck">colorActivityTruck</string>
-    <string name="shared_preference_file_key">edu.purdue.combinekarttruck.shared_preference_file</string>
+    <string name="shared_preference_file_key">edu.purdue.pptracker.shared_preference_file</string>
     <string name="filling_space">" "</string>
     <string name="warning_toast_unknown_vehicle">Warning! The vehicle type regestered with this ID is unknown!\nThe preference file may be corrupted!/nYou can try another ID.</string>
 
@@ -32,16 +32,30 @@
     <!-- GPS Log -->
     <string name="gps_update_interval">1000</string>
     <string name="gps_data">GPS data: </string>
-    <string name="gps_data_log_path"></string>
+
+    <string name="gps_log_folder_path"></string>
+
     <string name="gps_log_file_path_combine">/CKT/Combines/</string>
     <string name="gps_log_file_path_kart">/CKT/Karts/</string>
     <string name="gps_log_file_path_truck">/CKT/Trucks/</string>
+    <string name="gps_log_file_path_pptracker">/PPTracker/</string>
+
     <string name="gps_log_file_dir_create_error">Could not create directories!\n</string>
     <string name="gps_log_file_external_storage_error">Could not find the external storage!\n</string>
-    <string name="gps_log_file_create_error">Could not create log file!\n</string>
-    <string name="gps_log_file_close_error">Could not close log file!\n</string>
+
     <string name="gps_log_file_write_error">Could not log GPS data!\n</string>
     <string name="gps_log_file_head">"% Time, GPS time, lat, lon, altitude, speed, bearing, accuracy\n"</string>
+
+    <string name="log_file_create_error">Could not create log file!\n</string>
+    <string name="log_file_close_error">Could not close log file!\n</string>
+    <string name="log_file_write_error">Could not log into file!\n</string>
+
+    <string name="cell_log_file_head">"% Time, GPS time, lat, lon, speed, bearing, gsmIds, gsmDbms, gsmTimeStamps, cdmaIds, cdmaDbms, cdmaTimeStamps, wcdmaIds, wcdmaDbms, wcdmaTimeStamps, lteIds, lteDbms, lteTimeStamps, otherCellInfo\n"</string>
+    <string name="cell_verbose_log_file_head">"% Time, GPS time (ms), GpsTimeStamp (Time since boot in ms), CellInfoType:{attributes}\n"</string>
+
+    <string name="wifi_disc_log_file_head">"% ------\nTime, GPS time (ms), GpsTimeStamp (Time since boot in ms)\nNum, SSID, BSSID, RssiDbm, frequency, timeStamp\n"</string>
+    <string name="wifi_conn_log_file_head">"% ------\nTime, GPS time (ms), GpsTimeStamp (Time since boot in ms), connectedWifiSSID\nNum, SSID, BSSID, RssiDbm, frequency, timeStamp\n"</string>
+
     <string name="gps_please_enable_it">Your GPS seems to be disabled. Please check and enalbe it.</string>
     <string name="gps_warning_may_not_working">Warning! The location logger may crash without GPS service.</string>
 
@@ -64,13 +78,16 @@
     <string name="vehicle_state_unloading">Unloading…</string>
     <string name="kart_not_unloading">Start to unload</string>
     <string name="kart_unloading">Stop unloading</string>
+    <string name="pptracker_spreading">Stop patching</string>
     <string name="kart_done_unloading">Have unloaded all?</string>
+    <string name="pptracker_done_spreading">Finished patching for this spot?</string>
     <string name="truck_take_a_picture">Take a picture\nfor the ticket</string>
     <string name="truck_take_a_picture_oneline">Take a picture for the ticket</string>
     <string name="truck_take_a_picture_capture">Capture</string>
     <string name="truck_image_file_create_error">Could not create image file!\n</string>
     <string name="truck_image_file_load_error">Could not load image file!\n</string>
     <string name="truck_temp_image_create_error">Could not create the temp image file!\n</string>
+    <string name="pptracker_temp_image_create_error">PPTracker: Could not create the temp image file!\n</string>
 
     <color name="kart_not_unloading">#afff4444</color>
     <color name="kart_unloading">#af33b5e5</color>
@@ -90,5 +107,13 @@
     <string name="title_activity_simplified_combine">SimplifiedCombineAcitivity</string>
     <string name="title_activity_kart">KartActivity</string>
     <string name="title_activity_truck">TruckActivity</string>
+    <string name="title_activity_pptracker">PPTrackerActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="vehicle_pptracker">PPTracker</string>
+    <string name="pptracker_image_file_load_error">PPTracker could not load image file!</string>
+    <string name="pptraker_state">State:</string>
+    <string name="pptracker_not_spreading">Start to patch</string>
+    <string name="pptracker_take_a_picture">Take a picture\nfor the pothole</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

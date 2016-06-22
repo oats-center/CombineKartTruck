@@ -7,14 +7,6 @@ package edu.purdue.combinekarttruck;
  * 
  */
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Date;
-
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -33,7 +25,20 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-public class TruckActivity extends BasicGpsLoggingActivity {
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
+
+import edu.purdue.combinekarttruck.BasicGpsLoggingActivity;
+import edu.purdue.combinekarttruck.MainLoginActivity;
+import edu.purdue.combinekarttruck.R;
+import edu.purdue.combinekarttruck.utils.Utils;
+
+public class TruckActivity extends WifiSpeedTestClientActivity {
 	// For the taking a picture function.
 	static final int REQUEST_TAKE_PHOTO = 1;
 	private File tempImageFile;
@@ -42,7 +47,7 @@ public class TruckActivity extends BasicGpsLoggingActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		actionBarActivityOnCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_truck);
 		if (savedInstanceState == null) {
@@ -60,7 +65,8 @@ public class TruckActivity extends BasicGpsLoggingActivity {
 
 	@Override
 	public String getPartialLogFilePath() {
-		return getString(R.string.gps_log_file_path_truck);
+		return this.getSharedPref().getString(Utils.SAVED_FOLDER_PATH,
+				null) + "Trucks/";
 	}
 
 	@Override
@@ -101,7 +107,7 @@ public class TruckActivity extends BasicGpsLoggingActivity {
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
+								 Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_truck,
 					container, false);
 			return rootView;
@@ -127,7 +133,7 @@ public class TruckActivity extends BasicGpsLoggingActivity {
 				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
 						getString(R.string.truck_temp_image_create_error));
 				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("TruckTakePicureCreateTempFile", e.toString());
+				Log.e("TruckPicCreateTempFile", e.toString());
 			}
 
 			// Continue only if the File was successfully created
@@ -154,51 +160,51 @@ public class TruckActivity extends BasicGpsLoggingActivity {
 				android.os.Environment.MEDIA_MOUNTED)) {
 
 			switch (requestCode) {
-			case REQUEST_TAKE_PHOTO:
-				if (resultCode == Activity.RESULT_OK) {
+				case REQUEST_TAKE_PHOTO:
+					if (resultCode == Activity.RESULT_OK) {
 
-					// Save the photo.
-					if (tempImageFile != null) {
-						String imageFileName = "ticket_"
-								+ getFormatterUnderline().format(new Date())
-								+ ".jpg";
-						photoFile = new File(getLogFilePath(), imageFileName);
+						// Save the photo.
+						if (tempImageFile != null) {
+							String imageFileName = "ticket_"
+									+ getFormatterUnderline().format(new Date())
+									+ ".jpg";
+							photoFile = new File(getLogFilePath(), imageFileName);
 
+							try {
+								copyFile(tempImageFile, photoFile);
+								Toast.makeText(this, photoFile.toString(),
+										Toast.LENGTH_LONG).show();
+							} catch (IOException e) {
+								photoFile.delete();
+								Log.e("TruckSavePhoto", e.toString());
+							}
+						}
+
+						// Make the new photo available for other apps.
+						Intent mediaScanIntent = new Intent(
+								Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+						Uri contentUri = Uri.fromFile(photoFile);
+						mediaScanIntent.setData(contentUri);
+						this.sendBroadcast(mediaScanIntent);
+
+						getContentResolver().notifyChange(tempImageUri, null);
+						ImageView imageView = (ImageView) findViewById(R.id.imageViewTicket);
+						ContentResolver cr = getContentResolver();
+						Bitmap bitmap;
 						try {
-							copyFile(tempImageFile, photoFile);
-							Toast.makeText(this, photoFile.toString(),
-									Toast.LENGTH_LONG).show();
-						} catch (IOException e) {
-							photoFile.delete();
-							Log.e("TruckSavePhoto", e.toString());
+							bitmap = android.provider.MediaStore.Images.Media
+									.getBitmap(cr, tempImageUri);
+							imageView.setImageBitmap(bitmap);
+						} catch (Exception e) {
+							MainLoginActivity
+									.toastStringTextAtCenterWithLargerSize(
+											this,
+											getString(R.string.truck_image_file_load_error));
+							Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT)
+									.show();
+							Log.e("Camera", e.toString());
 						}
 					}
-
-					// Make the new photo available for other apps.
-					Intent mediaScanIntent = new Intent(
-							Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-					Uri contentUri = Uri.fromFile(photoFile);
-					mediaScanIntent.setData(contentUri);
-					this.sendBroadcast(mediaScanIntent);
-
-					getContentResolver().notifyChange(tempImageUri, null);
-					ImageView imageView = (ImageView) findViewById(R.id.imageViewTicket);
-					ContentResolver cr = getContentResolver();
-					Bitmap bitmap;
-					try {
-						bitmap = android.provider.MediaStore.Images.Media
-								.getBitmap(cr, tempImageUri);
-						imageView.setImageBitmap(bitmap);
-					} catch (Exception e) {
-						MainLoginActivity
-								.toastStringTextAtCenterWithLargerSize(
-										this,
-										getString(R.string.truck_image_file_load_error));
-						Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT)
-								.show();
-						Log.e("Camera", e.toString());
-					}
-				}
 			}
 		}
 	}

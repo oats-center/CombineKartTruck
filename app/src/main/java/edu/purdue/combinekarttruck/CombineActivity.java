@@ -7,14 +7,11 @@ package edu.purdue.combinekarttruck;
  * 
  */
 
-import java.io.IOException;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,199 +19,180 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-public class CombineActivity extends BasicGpsLoggingActivity {
+import edu.purdue.combinekarttruck.utils.Utils;
 
-	private boolean combineIsUnloading = false;
-	private boolean combineDoneUnloading = false;
+public class CombineActivity extends WifiSpeedTestClientActivity {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		actionBarActivityOnCreate(savedInstanceState);
+    private boolean combineIsUnloading = false;
+    private boolean combineDoneUnloading = false;
 
-		setContentView(R.layout.activity_combine);
-		if (savedInstanceState == null) {
-			getSupportFragmentManager().beginTransaction()
-					.add(R.id.container, new PlaceholderFragment()).commit();
-		}
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-	}
+        setContentView(R.layout.activity_combine);
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, new PlaceholderFragment()).commit();
+        }
 
-	@Override
-	protected void onStart() {
-		// TODO Auto-generated method stub
-		super.onStart();
+    }
 
-		try {
-			getMLogState().write("% Combine state: not unloading (default)\n");
-		} catch (IOException e) {
-			MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-					getString(R.string.gps_log_file_create_error));
-			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-			Log.e("CombineOnStartWrite", e.toString());
-		}
-	}
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-	@Override
-	public String getLoginType() {
-		return getString(R.string.vehicle_combine);
-	}
+        LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+                "% Combine state: not unloading (default)\n",
+                "CombineOnStartWrite");
+    }
 
-	@Override
-	public String getPartialLogFilePath() {
-		return getString(R.string.gps_log_file_path_combine);
-	}
+    @Override
+    public String getLoginType() {
+        return getString(R.string.vehicle_combine);
+    }
 
-	@Override
-	public void setBackgroundColor() {
-		findViewById(R.id.textViewVehicleTypeLabel).getRootView()
-				.setBackgroundColor(
-						getResources().getColor(
-								MainLoginActivity.COLOR_ACTIVITY_COMBINE));
-	}
+    @Override
+    public String getPartialLogFilePath() {
+        return this.getSharedPref().getString(Utils.SAVED_FOLDER_PATH,
+                null) + "Combines/";
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+    @Override
+    public void setBackgroundColor() {
+        findViewById(R.id.textViewVehicleTypeLabel).getRootView()
+                .setBackgroundColor(
+                        getResources().getColor(
+                                MainLoginActivity.COLOR_ACTIVITY_COMBINE));
+    }
 
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.kart, menu);
-		return true;
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.kart, menu);
+        return true;
+    }
 
-	/**
-	 * A placeholder fragment containing a simple view.
-	 */
-	public static class PlaceholderFragment extends Fragment {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-		public PlaceholderFragment() {
-		}
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
 
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_combine,
-					container, false);
-			return rootView;
-		}
-	}
+        public PlaceholderFragment() {
+        }
 
-	public void changeCombineUnloadingState(View view) {
-		Button changeStateButton = (Button) view;
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_combine,
+                    container, false);
+            return rootView;
+        }
+    }
 
-		// Change the text and color (which will be effective) of the button and
-		// record the change of
-		// state into log file.
-		if (combineIsUnloading) {
-			// From "unloading" to "not unloading".
-			changeStateButton.setText(getString(R.string.kart_not_unloading));
-			changeStateButton.setBackgroundColor(getResources().getColor(
-					R.color.kart_not_unloading));
+    public void changeCombineUnloadingState(View view) {
+        Button changeStateButton = (Button) view;
 
-			buildAlertMessageDoneUnloading(this);
+        // Change the text and color (which will be effective) of the button and
+        // record the change of
+        // state into log file.
+        if (combineIsUnloading) {
+            // From "unloading" to "not unloading".
+            changeStateButton.setText(getString(R.string.kart_not_unloading));
+            changeStateButton.setBackgroundColor(getResources().getColor(
+                    R.color.kart_not_unloading));
 
-			long date = System.currentTimeMillis();
-			try {
-				if (combineDoneUnloading) {
-					getMLogState()
-							.write(super.getFormatterClock().format(date)
-									+ " ("
-									+ date
-									+ ") Combine state changes to: not unloading");
-				} else {
-					getMLogState()
-							.write(super.getFormatterClock().format(date)
-									+ " ("
-									+ date
-									+ ") Combine state changes to: not unloading");
-				}
-			} catch (IOException e) {
-				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("CombineChangeStateWrite", e.toString());
-			}
+            buildAlertMessageDoneUnloading(this);
 
-		} else {
-			// From "not unloading" to "unloading".
-			changeStateButton.setText(getString(R.string.kart_unloading));
-			changeStateButton.setBackgroundColor(getResources().getColor(
-					R.color.kart_unloading));
+            long date = System.currentTimeMillis();
+            String string;
 
-			long date = System.currentTimeMillis();
-			try {
-				getMLogState().write(
-						super.getFormatterClock().format(date) + " (" + date
-								+ ") Combine state changes to: unloading\n");
-			} catch (IOException e) {
-				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("CombineChangeStateWrite", e.toString());
-			}
-		}
+            if (combineDoneUnloading) {
+                string = super.getFormatterClock().format(date)
+                        + " ("
+                        + date
+                        + ") Combine state changes to: not unloading";
+            } else {
+                string = super.getFormatterClock().format(date)
+                        + " ("
+                        + date
+                        + ") Combine state changes to: not unloading";
+            }
 
-		changeStateButton.invalidate();
-		// Change the state flag.
-		combineIsUnloading = !combineIsUnloading;
-	}
+            LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+                    string, "CombineChangeStateWrite");
 
-	private void buildAlertMessageDoneUnloading(final Activity activity) {
 
-		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        } else {
+            // From "not unloading" to "unloading".
+            changeStateButton.setText(getString(R.string.kart_unloading));
+            changeStateButton.setBackgroundColor(getResources().getColor(
+                    R.color.kart_unloading));
 
-		builder.setMessage(getString(R.string.kart_done_unloading))
-				.setCancelable(false)
-				.setPositiveButton(getString(R.string.button_yes),
-						new DialogInterface.OnClickListener() {
-							public void onClick(final DialogInterface dialog,
-									final int id) {
-								dialog.cancel();
+            long date = System.currentTimeMillis();
 
-								try {
-									getMLogState().write(" (all unloaded)\n");
-								} catch (IOException e) {
-									Log.e("CombineChangeStateWrite",
-											e.toString());
-								}
-							}
-						})
-				.setNegativeButton(getString(R.string.button_no),
-						new DialogInterface.OnClickListener() {
-							public void onClick(final DialogInterface dialog,
-									final int id) {
-								dialog.cancel();
+            LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+                    super.getFormatterClock().format(date) + " (" + date
+                            + ") Combine state changes to: unloading\n",
+                    "CombineChangeStateWrite");
+        }
 
-								try {
-									getMLogState().write(
-											" (not all unloaded)\n");
-								} catch (IOException e) {
-									Log.e("CombineChangeStateWrite",
-											e.toString());
-								}
-							}
-						});
-		final AlertDialog alert = builder.create();
-		alert.show();
+        changeStateButton.invalidate();
+        // Change the state flag.
+        combineIsUnloading = !combineIsUnloading;
+    }
 
-		TextView textView = (TextView) alert.findViewById(android.R.id.message);
-		textView.setTextSize(30);
-		Button buttonNeg = alert.getButton(DialogInterface.BUTTON_NEGATIVE);
-		buttonNeg.setTextSize(25);
-		Button buttonPos = alert.getButton(DialogInterface.BUTTON_POSITIVE);
-		buttonPos.setTextSize(25);
-	}
+    private void buildAlertMessageDoneUnloading(final Activity activity) {
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage(getString(R.string.kart_done_unloading))
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.button_yes),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(final DialogInterface dialog,
+                                                final int id) {
+                                dialog.cancel();
+
+                                LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+                                        " (all unloaded)\n",
+                                        "CombineChangeStateWrite");
+                            }
+                        })
+                .setNegativeButton(getString(R.string.button_no),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(final DialogInterface dialog,
+                                                final int id) {
+                                dialog.cancel();
+
+                                LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+                                        " (not all unloaded)\n",
+                                        "CombineChangeStateWrite");
+                            }
+                        });
+        final AlertDialog alert = builder.create();
+        alert.show();
+
+        TextView textView = (TextView) alert.findViewById(android.R.id.message);
+        textView.setTextSize(30);
+        Button buttonNeg = alert.getButton(DialogInterface.BUTTON_NEGATIVE);
+        buttonNeg.setTextSize(25);
+        Button buttonPos = alert.getButton(DialogInterface.BUTTON_POSITIVE);
+        buttonPos.setTextSize(25);
+    }
 
 }

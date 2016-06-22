@@ -2,22 +2,23 @@ package edu.purdue.combinekarttruck;
 
 /*
  * The activity for combine.
- * 
+ *
  * @author: Yaguang Zhang
- * 
+ *
  */
 
-import java.io.IOException;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
+
+import edu.purdue.combinekarttruck.BasicGpsLoggingActivity;
+import edu.purdue.combinekarttruck.MainLoginActivity;
+import edu.purdue.combinekarttruck.R;
 
 public class SimplifiedCombineActivity extends BasicGpsLoggingActivity {
 
@@ -25,7 +26,7 @@ public class SimplifiedCombineActivity extends BasicGpsLoggingActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		actionBarActivityOnCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_combine);
 		if (savedInstanceState == null) {
@@ -36,17 +37,12 @@ public class SimplifiedCombineActivity extends BasicGpsLoggingActivity {
 
 	@Override
 	protected void onStart() {
-		// TODO Auto-generated method stub
 		super.onStart();
 
-		try {
-			getMLogState().write("% Combine state: not unloading (default)\n");
-		} catch (IOException e) {
-			MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-					getString(R.string.gps_log_file_create_error));
-			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-			Log.e("CombineOnStartWrite", e.toString());
-		}
+		LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+				"% Combine state: not unloading (default)\n",
+				"CombineOnStartWrite");
+
 	}
 
 	@Override
@@ -97,7 +93,7 @@ public class SimplifiedCombineActivity extends BasicGpsLoggingActivity {
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
+								 Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_combine,
 					container, false);
 			return rootView;
@@ -117,17 +113,11 @@ public class SimplifiedCombineActivity extends BasicGpsLoggingActivity {
 					R.color.kart_not_unloading));
 
 			long date = System.currentTimeMillis();
-			try {
-				getMLogState()
-						.write(super.getFormatterClock().format(date) + " ("
-								+ date
-								+ ") Combine state changes to: not unloading\n");
-			} catch (IOException e) {
-				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("KartChangeStateWrite", e.toString());
-			}
+			LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+					super.getFormatterClock().format(date)
+							+ " (" + date
+							+ ") Combine state changes to: not unloading\n",
+					"KartChangeStateWrite");
 
 		} else {
 			// From "not unloading" to "unloading".
@@ -136,16 +126,12 @@ public class SimplifiedCombineActivity extends BasicGpsLoggingActivity {
 					R.color.kart_unloading));
 
 			long date = System.currentTimeMillis();
-			try {
-				getMLogState().write(
-						super.getFormatterClock().format(date) + " (" + date
-								+ ") Combine state changes to: unloading\n");
-			} catch (IOException e) {
-				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("KartChangeStateWrite", e.toString());
-			}
+
+			LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+					super.getFormatterClock().format(date)
+							+ " (" + date
+							+ ") Combine state changes to: unloading\n",
+					"KartChangeStateWrite");
 		}
 
 		changeStateButton.invalidate();

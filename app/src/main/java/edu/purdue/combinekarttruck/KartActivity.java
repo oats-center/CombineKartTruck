@@ -2,18 +2,16 @@ package edu.purdue.combinekarttruck;
 
 /*
  * The activity for grain kart.
- * 
+ *
  * @author: Yaguang Zhang
- * 
+ *
  */
 
-import java.io.IOException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,16 +19,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-public class KartActivity extends BasicGpsLoggingActivity {
+import edu.purdue.combinekarttruck.BasicGpsLoggingActivity;
+import edu.purdue.combinekarttruck.MainLoginActivity;
+import edu.purdue.combinekarttruck.R;
+import edu.purdue.combinekarttruck.utils.Utils;
+
+public class KartActivity extends WifiSpeedTestClientActivity {
 
 	private boolean kartIsUnloading = false;
 	private boolean kartDoneUnloading = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		actionBarActivityOnCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_kart);
 		if (savedInstanceState == null) {
@@ -41,18 +43,12 @@ public class KartActivity extends BasicGpsLoggingActivity {
 	}
 
 	@Override
-	protected void onStart() {
-		// TODO Auto-generated method stub
-		super.onStart();
+	protected void onResume() {
+		super.onResume();
 
-		try {
-			getMLogState().write("% Kart state: not unloading (default)\n");
-		} catch (IOException e) {
-			MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-					getString(R.string.gps_log_file_create_error));
-			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-			Log.e("KartOnStartWrite", e.toString());
-		}
+		LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+				"% Kart state: not unloading (default)\n",
+				"KartOnStartWrite");
 	}
 
 	@Override
@@ -62,7 +58,8 @@ public class KartActivity extends BasicGpsLoggingActivity {
 
 	@Override
 	public String getPartialLogFilePath() {
-		return getString(R.string.gps_log_file_path_kart);
+		return this.getSharedPref().getString(Utils.SAVED_FOLDER_PATH,
+				null) + "Karts/";
 	}
 
 	@Override
@@ -103,7 +100,7 @@ public class KartActivity extends BasicGpsLoggingActivity {
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
+								 Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_kart, container,
 					false);
 			return rootView;
@@ -125,24 +122,22 @@ public class KartActivity extends BasicGpsLoggingActivity {
 			buildAlertMessageDoneUnloading(this);
 
 			long date = System.currentTimeMillis();
-			try {
-				if (kartDoneUnloading) {
-					getMLogState().write(
-							super.getFormatterClock().format(date) + " ("
-									+ date
-									+ ") Kart state changes to: not unloading");
-				} else {
-					getMLogState().write(
-							super.getFormatterClock().format(date) + " ("
-									+ date
-									+ ") Kart state changes to: not unloading");
-				}
-			} catch (IOException e) {
-				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("KartChangeStateWrite", e.toString());
+			String string;
+
+			if (kartDoneUnloading) {
+				string = super.getFormatterClock().format(date)
+						+ " ("
+						+ date
+						+ ") Kart state changes to: not unloading";
+			} else {
+				string = super.getFormatterClock().format(date)
+						+ " ("
+						+ date
+						+ ") Kart state changes to: not unloading";
 			}
+
+			LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+					string, "KartChangeStateWrite");
 
 		} else {
 			// From "not unloading" to "unloading".
@@ -151,16 +146,10 @@ public class KartActivity extends BasicGpsLoggingActivity {
 					R.color.kart_unloading));
 
 			long date = System.currentTimeMillis();
-			try {
-				getMLogState().write(
-						super.getFormatterClock().format(date) + " (" + date
-								+ ") Kart state changes to: unloading\n");
-			} catch (IOException e) {
-				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("KartChangeStateWrite", e.toString());
-			}
+			LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+					super.getFormatterClock().format(date) + " (" + date
+							+ ") Kart state changes to: unloading\n",
+					"KartChangeStateWrite");
 		}
 
 		changeStateButton.invalidate();
@@ -177,28 +166,23 @@ public class KartActivity extends BasicGpsLoggingActivity {
 				.setPositiveButton(getString(R.string.button_yes),
 						new DialogInterface.OnClickListener() {
 							public void onClick(final DialogInterface dialog,
-									final int id) {
+												final int id) {
 								dialog.cancel();
 
-								try {
-									getMLogState().write(" (all unloaded)\n");
-								} catch (IOException e) {
-									Log.e("KartChangeStateWrite", e.toString());
-								}
+								LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+										" (all unloaded)\n",
+										"KartChangeStateWrite");
 							}
 						})
 				.setNegativeButton(getString(R.string.button_no),
 						new DialogInterface.OnClickListener() {
 							public void onClick(final DialogInterface dialog,
-									final int id) {
+												final int id) {
 								dialog.cancel();
 
-								try {
-									getMLogState().write(
-											" (not all unloaded)\n");
-								} catch (IOException e) {
-									Log.e("KartChangeStateWrite", e.toString());
-								}
+								LogFileWrite(isLOG_STATE_FLAG(), getmLogFileState(),
+										" (not all unloaded)\n",
+										"KartChangeStateWrite");
 							}
 						});
 		final AlertDialog alert = builder.create();
