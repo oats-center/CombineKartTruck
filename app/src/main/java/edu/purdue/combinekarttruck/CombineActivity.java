@@ -52,13 +52,19 @@ public class CombineActivity extends BasicGpsLoggingActivity {
 		// TODO Auto-generated method stub
 		super.onStart();
 
-		try {
-			getMLogState().write("% Combine state: not unloading (default)\n");
-		} catch (IOException e) {
-			MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-					getString(R.string.gps_log_file_create_error));
-			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-			Log.e("CombineOnStartWrite", e.toString());
+		if(getLogStateFlag()) {
+			try {
+				getMLogState().write("% Combine state: not unloading (default)\n");
+			} catch (IOException e) {
+				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
+						getString(R.string.gps_log_file_create_error));
+				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+				Log.e("CombineOnStartWrite", e.toString());
+			}
+		} else {
+			Button stateButton = (Button) findViewById(R.id.ButtonChangeKartUnloadingState);
+			stateButton.setVisibility(View.GONE);
+			stateButton.setOnClickListener(null);
 		}
 	}
 

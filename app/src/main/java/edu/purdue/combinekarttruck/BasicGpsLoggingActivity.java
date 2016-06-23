@@ -34,9 +34,13 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
+import java.util.Random;
 
 /*
  * The activity for GPS data recording (also extended to record cell and Wifi signal strength).
@@ -49,13 +53,12 @@ import java.util.Date;
 public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		LocationListener {
 
-	public boolean getLogWifiFlag() {
-		return LOG_WIFI_FLAG;
-	}
-
-	public boolean getLogSignalFlag() {
-		return LOG_SIGNAL_FLAG;
-	}
+	// For the rate test.
+	private boolean LOG_RATE_FLAG = true;
+	// Only try to initiate a new rate test when this is false.
+	private boolean isRateTestOnProgress = false;
+	private String urlRateTestFile = "http://192.168.1.80/50MB.zip.txt";
+	private float probabilyToInitiateRateTest = 0.9f;
 
 	private boolean LOG_WIFI_FLAG = true;
 	private WifiManager wifiManager;
@@ -64,12 +67,12 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	private boolean LOG_SIGNAL_FLAG = true;
 	private TelephonyManager telephonyManager;
 
-	private boolean LOG_STATE_FLAG = true;
+	private boolean LOG_STATE_FLAG = false;
 
-	private String loginId, logFilePath, logFileNameGps, logFileNameState, logFileNameSignal, logFileNameWifi;
+	private String loginId, logFilePath, logFileNameGps, logFileNameState, logFileNameSignal, logFileNameWifi, logFileNameRate;
 
-	private File mFileGps, mFileState, mFileSignal, mFileWifi;
-	private FileWriter mLogGps, mLogState, mLogSignal, mLogWifi;
+	private File mFileGps, mFileState, mFileSignal, mFileWifi, mFileRate;
+	private FileWriter mLogGps, mLogState, mLogSignal, mLogWifi, mLogRate;
 
 	private LocationManager mLocationManager;
 	private TextView textViewTime;
@@ -83,6 +86,18 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		LOG_STATE_FLAG = flag;
 	}
 
+	public boolean getLogRateFlag() {
+		return LOG_RATE_FLAG;
+	}
+	public boolean getLogWifiFlag() {
+		return LOG_WIFI_FLAG;
+	}
+	public boolean getLogSignalFlag() {
+		return LOG_SIGNAL_FLAG;
+	}
+	public boolean getLogStateFlag() {
+		return LOG_STATE_FLAG;
+	}
 	public String getLogFileString() {
 		return logFilePath;
 	}
@@ -167,7 +182,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 					.getExternalStorageState())) {
 				File logFileDirFile = new File(logFilePath);
 
-				if(!logFileDirFile.exists()) {
+				if (!logFileDirFile.exists()) {
 					if (!logFileDirFile.mkdirs()) {
 						Utils.toastStringTextAtCenterWithLargerSize(this, "ERROR: Write to external storage permission denied!");
 					}
@@ -194,7 +209,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 					LocationManager.NETWORK_PROVIDER, 0, 0, this);
 			mLocationManager.requestLocationUpdates(
 					LocationManager.GPS_PROVIDER, 0, 0, this);
-		} catch(SecurityException e) {
+		} catch (SecurityException e) {
 			Log.e("BasicGpsLogging", e.toString());
 		}
 	}
@@ -220,18 +235,18 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	protected void onResume() {
 		super.onResume();
 
-		if(LOG_WIFI_FLAG){
+		if (LOG_WIFI_FLAG) {
 			wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
 		}
 
-		if(LOG_SIGNAL_FLAG) {
+		if (LOG_SIGNAL_FLAG) {
 			telephonyManager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
 		}
 
 		// Start the timer textView.
 		textViewTime = ((TextView) findViewById(R.id.textViewTime));
 		formatterClock = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss",
-				java.util.Locale.getDefault());
+				Locale.getDefault());
 
 		Thread threadTimer = new Thread() {
 			@Override
@@ -312,7 +327,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 		try {
 			mLocationManager.removeUpdates(this);
-		} catch(SecurityException e) {
+		} catch (SecurityException e) {
 			Log.e("BasicGpsLogging", e.toString());
 		}
 
@@ -339,7 +354,12 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		bearingGps.setText("Bearing: " + location.getBearing());
 		accuracyGps.setText("Accuracy: " + location.getAccuracy());
 
+		// Note: for simple time synchronization between multiple tablets, we are using the system
+		// time as GPS time instead of the true GPS time from the sample: location.getTime().
 		long cur_time = System.currentTimeMillis();
+
+		long diffTime = cur_time-location.getTime();
+		Log.i("Debug", "Comparison of GPS time and system time. \nGpsTime: " + location.getTime() + ", SystemTime: " + cur_time  + ", DiffTime: " + diffTime);
 
 		try {
 			mLogGps.write(formatterClock.format(cur_time) + ", " + cur_time
@@ -359,21 +379,91 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 			Log.e("BasicGpsLogLocChanged", e.toString());
 		}
 
+		// Rate test logger.
+		if (LOG_RATE_FLAG) {
+			try {
+				mLogRate.write(cur_time
+						+ ", " + location.getLatitude() + ", "
+						+ location.getLongitude()
+						+ "\n");
+
+				// Make sure that the data is recorded immediately so that the auto sync (e.g. for Google
+				// Drive) works.
+				mLogRate.flush();
+				mFileRate.setLastModified(cur_time);
+
+			} catch (IOException e) {
+				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
+						"Error writing into the rate file!");
+				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+				Log.e("BasicRateChanged", e.toString());
+			}
+
+			// Try initiate the rate test if necessary.
+			if(!isRateTestOnProgress) {
+				Random r = new Random(cur_time);
+				if (r.nextFloat() < probabilyToInitiateRateTest) {
+					// Block other initiations in the future.
+					isRateTestOnProgress = true;
+					Utils.toastStringTextAtCenterWithLargerSize(this, "Initiating a speed test");
+					// Initiate the rate test.
+					new Thread(new Runnable() {
+						public void run() {
+							try {
+								// Get the expected file size but also stops if the server isn't
+								// reachable.
+								URL url = new URL(urlRateTestFile);
+								URLConnection urlConnection = url.openConnection();
+								urlConnection.connect();
+								long fileSize = urlConnection.getContentLength();
+
+								long startTime = System.currentTimeMillis();
+								// Log at the start.
+								mLogRate.write("Start: " + startTime + ", " + fileSize
+										+ "\n");
+								Object result = Http.Get(urlRateTestFile);
+
+								// Log at the end.
+								long endTime = System.currentTimeMillis();
+								// Log at the start.
+								long timeUsed = endTime - startTime;
+								long downloadedSize = ((String) result).length();
+
+								float rate = ((float) downloadedSize) / timeUsed * 1000;
+
+								Log.i("HttpGet", "HttpGet(Done): File length: " + fileSize + ", Dowloaded object size: " + downloadedSize + ", timeUsed: " + timeUsed +", Rate: " + rate);
+
+								mLogRate.write("End: " + endTime + ", "
+										+ timeUsed + ", " + downloadedSize + ", " + rate
+										+ "\n");
+
+							} catch (Exception e){
+								Log.e("InitRateTest", e.toString());
+							} finally {
+								// OK to initiate other rate tests now.
+								isRateTestOnProgress = false;
+							}
+						}
+					}).start();
+				}
+			}
+		}
+
 		// Wifi strength logger.
-		if(LOG_WIFI_FLAG){
+		if (LOG_WIFI_FLAG) {
 			try {
 				WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 				String connectedId = wifiInfo.getSSID();
 				int RSSI = wifiInfo.getRssi();
 
 				// Try to lock to the specified SSID.
-				if (!connectedId.equals("\""+Utils.getHostSsid()+"\"")){
-					if(Utils.isLockToHostSsid()){
+				if (!connectedId.equals("\"" + Utils.getHostSsid() + "\"")) {
+					if (Utils.isLockToHostSsid()) {
 						Utils.reconnectToAccessPoint(Utils.getHostSsid(), Utils.getHostPasswordD(),
 								Utils.isLockToHostSsid(), this);
 						throw new IOException("Connected to a wrong access point!");
 					} else {
-
+						// TODO: Do nothing here?
 					}
 				}
 
@@ -398,7 +488,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		}
 
 		// Cell signal strength logger.
-		if(LOG_SIGNAL_FLAG) {
+		if (LOG_SIGNAL_FLAG) {
 			ArrayList<Integer> gsmDbms = new ArrayList<>();
 			ArrayList<Integer> cdmaDbms = new ArrayList<>();
 			ArrayList<Integer> lteDbms = new ArrayList<>();
@@ -485,9 +575,10 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	}
 
 	public void createLogFiles() {
+		// Create the log file for the GPS information.
 		if (logFileNameGps == null) {
 			formatterUnderline = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss",
-					java.util.Locale.getDefault());
+					Locale.getDefault());
 			Date date = new Date();
 			logFileNameGps = "gps_" + formatterUnderline.format(date) + ".txt";
 		}
@@ -511,7 +602,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		if (LOG_STATE_FLAG) {
 			if (logFileNameState == null) {
 				formatterUnderline = new SimpleDateFormat(
-						"yyyy_MM_dd_HH_mm_ss", java.util.Locale.getDefault());
+						"yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
 				Date date = new Date();
 				logFileNameState = "state_" + formatterUnderline.format(date)
 						+ ".txt";
@@ -532,11 +623,37 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 			}
 		}
 
-		// Create the log file for Wifi strength..
+		// Create the log file for rate test.
+		if (LOG_RATE_FLAG) {
+			if (logFileNameRate == null) {
+				formatterUnderline = new SimpleDateFormat(
+						"yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
+				Date date = new Date();
+				logFileNameRate = "rate_" + formatterUnderline.format(date)
+						+ ".txt";
+			}
+
+			try {
+				mFileRate = new File(logFilePath, logFileNameRate);
+
+				mLogRate = new FileWriter(mFileRate);
+				mLogRate.write("% " + getLoginType() + " " + loginId + ": "
+						+ logFileNameRate + "\n"
+						+ getString(R.string.rate_log_file_head));
+
+			} catch (IOException e) {
+				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
+						"Error: Couldn't create the rate log file!");
+				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+				Log.e("BasicRateLogCreate", e.toString());
+			}
+		}
+
+		// Create the log file for Wifi strength.
 		if (LOG_WIFI_FLAG) {
 			if (logFileNameWifi == null) {
 				formatterUnderline = new SimpleDateFormat(
-						"yyyy_MM_dd_HH_mm_ss", java.util.Locale.getDefault());
+						"yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
 				Date date = new Date();
 				logFileNameWifi = "wifi_" + formatterUnderline.format(date)
 						+ ".txt";
@@ -547,9 +664,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 				mLogWifi = new FileWriter(mFileWifi);
 				mLogWifi.write("% " + getLoginType() + " " + loginId + ": "
-						+ logFileNameWifi + "\n");
-				mLogWifi.write("% " + getLoginType() + " " + loginId + ": "
-						+ logFileNameGps + "\n"
+						+ logFileNameWifi + "\n"
 						+ getString(R.string.wifi_log_file_head));
 
 			} catch (IOException e) {
@@ -560,11 +675,11 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 			}
 		}
 
-		// Create the log file for cell signal strength..
+		// Create the log file for cell signal strength.
 		if (LOG_SIGNAL_FLAG) {
 			if (logFileNameSignal == null) {
 				formatterUnderline = new SimpleDateFormat(
-						"yyyy_MM_dd_HH_mm_ss", java.util.Locale.getDefault());
+						"yyyy_MM_dd_HH_mm_ss", Locale.getDefault());
 				Date date = new Date();
 				logFileNameSignal = "signal_" + formatterUnderline.format(date)
 						+ ".txt";
@@ -575,9 +690,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 				mLogSignal = new FileWriter(mFileSignal);
 				mLogSignal.write("% " + getLoginType() + " " + loginId + ": "
-						+ logFileNameSignal + "\n");
-				mLogSignal.write("% " + getLoginType() + " " + loginId + ": "
-						+ logFileNameGps + "\n"
+						+ logFileNameSignal + "\n"
 						+ getString(R.string.signal_log_file_head));
 
 			} catch (IOException e) {
@@ -626,6 +739,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		}
 
 		logFileNameState = closeExtraLogFile(LOG_STATE_FLAG, logFileNameState, mFileState, mLogState);
+		logFileNameRate = closeExtraLogFile(LOG_RATE_FLAG, logFileNameRate, mFileRate, mLogRate);
 		logFileNameWifi = closeExtraLogFile(LOG_WIFI_FLAG, logFileNameWifi, mFileWifi, mLogWifi);
 		logFileNameSignal = closeExtraLogFile(LOG_SIGNAL_FLAG, logFileNameSignal, mFileSignal, mLogSignal);
 	}
