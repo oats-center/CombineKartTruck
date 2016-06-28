@@ -23,6 +23,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import edu.purdue.combinekarttruck.utils.Utils;
+
 public class KartActivity extends BasicGpsLoggingActivity {
 
 	private boolean kartIsUnloading = false;
@@ -51,19 +53,21 @@ public class KartActivity extends BasicGpsLoggingActivity {
 		// TODO Auto-generated method stub
 		super.onStart();
 
-		if(getLogStateFlag()) {
-			try {
-				getMLogState().write("% Kart state: not unloading (default)\n");
-			} catch (IOException e) {
-				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("KartOnStartWrite", e.toString());
-			}
-		} else {
+		if(!getLogStateFlag()) {
 			Button stateButton = (Button) findViewById(R.id.ButtonChangeKartUnloadingState);
 			stateButton.setVisibility(View.GONE);
 			stateButton.setOnClickListener(null);
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		if(!getLogStateFlag()) {
+			LogFileWrite(getLogStateFlag(), getmLogFileState(),
+					"% Grain Kart state: not unloading (default)\n",
+					"KartOnStartWrite");
 		}
 	}
 
@@ -132,24 +136,22 @@ public class KartActivity extends BasicGpsLoggingActivity {
 			buildAlertMessageDoneUnloading(this);
 
 			long date = System.currentTimeMillis();
-			try {
-				if (kartDoneUnloading) {
-					getMLogState().write(
-							super.getFormatterClock().format(date) + " ("
-									+ date
-									+ ") Kart state changes to: not unloading");
-				} else {
-					getMLogState().write(
-							super.getFormatterClock().format(date) + " ("
-									+ date
-									+ ") Kart state changes to: not unloading");
-				}
-			} catch (IOException e) {
-				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("KartChangeStateWrite", e.toString());
+			String string;
+
+			if (kartDoneUnloading) {
+				string = super.getFormatterClock().format(date)
+						+ " ("
+						+ date
+						+ ") Kart state changes to: not unloading";
+			} else {
+				string = super.getFormatterClock().format(date)
+						+ " ("
+						+ date
+						+ ") Kart state changes to: not unloading";
 			}
+
+			LogFileWrite(getLogStateFlag(), getmLogFileState(),
+					string, "KartChangeStateWrite");
 
 		} else {
 			// From "not unloading" to "unloading".
@@ -158,16 +160,10 @@ public class KartActivity extends BasicGpsLoggingActivity {
 					R.color.kart_unloading));
 
 			long date = System.currentTimeMillis();
-			try {
-				getMLogState().write(
-						super.getFormatterClock().format(date) + " (" + date
-								+ ") Kart state changes to: unloading\n");
-			} catch (IOException e) {
-				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("KartChangeStateWrite", e.toString());
-			}
+			LogFileWrite(getLogStateFlag(), getmLogFileState(),
+					super.getFormatterClock().format(date) + " (" + date
+							+ ") Kart state changes to: unloading\n",
+					"KartChangeStateWrite");
 		}
 
 		changeStateButton.invalidate();
@@ -184,28 +180,23 @@ public class KartActivity extends BasicGpsLoggingActivity {
 				.setPositiveButton(getString(R.string.button_yes),
 						new DialogInterface.OnClickListener() {
 							public void onClick(final DialogInterface dialog,
-									final int id) {
+												final int id) {
 								dialog.cancel();
 
-								try {
-									getMLogState().write(" (all unloaded)\n");
-								} catch (IOException e) {
-									Log.e("KartChangeStateWrite", e.toString());
-								}
+								LogFileWrite(getLogStateFlag(), getmLogFileState(),
+										" (all unloaded)\n",
+										"KartChangeStateWrite");
 							}
 						})
 				.setNegativeButton(getString(R.string.button_no),
 						new DialogInterface.OnClickListener() {
 							public void onClick(final DialogInterface dialog,
-									final int id) {
+												final int id) {
 								dialog.cancel();
 
-								try {
-									getMLogState().write(
-											" (not all unloaded)\n");
-								} catch (IOException e) {
-									Log.e("KartChangeStateWrite", e.toString());
-								}
+								LogFileWrite(getLogStateFlag(), getmLogFileState(),
+										" (not all unloaded)\n",
+										"KartChangeStateWrite");
 							}
 						});
 		final AlertDialog alert = builder.create();

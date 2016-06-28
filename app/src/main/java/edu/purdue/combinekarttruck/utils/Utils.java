@@ -1,4 +1,4 @@
-package edu.purdue.combinekarttruck;
+package edu.purdue.combinekarttruck.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -21,6 +21,8 @@ import android.Manifest;
 
 import java.io.File;
 import java.io.IOException;
+
+import edu.purdue.combinekarttruck.R;
 
 /**
  * Created by Zyglabs on 2/4/15.

@@ -33,6 +33,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import edu.purdue.combinekarttruck.utils.Utils;
+
 public class TruckActivity extends BasicGpsLoggingActivity {
 	// For the taking a picture function.
 	static final int REQUEST_TAKE_PHOTO = 1;
@@ -163,7 +165,7 @@ public class TruckActivity extends BasicGpsLoggingActivity {
 						String imageFileName = "ticket_"
 								+ getFormatterUnderline().format(new Date())
 								+ ".jpg";
-						photoFile = new File(getLogFilePath(), imageFileName);
+						photoFile = new File(getLogFilesPath(), imageFileName);
 
 						try {
 							copyFile(tempImageFile, photoFile);

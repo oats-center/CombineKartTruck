@@ -24,6 +24,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import edu.purdue.combinekarttruck.utils.Utils;
+
 public class CombineActivity extends BasicGpsLoggingActivity {
 
 	private boolean combineIsUnloading = false;
@@ -52,19 +54,21 @@ public class CombineActivity extends BasicGpsLoggingActivity {
 		// TODO Auto-generated method stub
 		super.onStart();
 
-		if(getLogStateFlag()) {
-			try {
-				getMLogState().write("% Combine state: not unloading (default)\n");
-			} catch (IOException e) {
-				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("CombineOnStartWrite", e.toString());
-			}
-		} else {
+		if(!getLogStateFlag()) {
 			Button stateButton = (Button) findViewById(R.id.ButtonChangeKartUnloadingState);
 			stateButton.setVisibility(View.GONE);
 			stateButton.setOnClickListener(null);
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		if(!getLogStateFlag()) {
+			LogFileWrite(getLogStateFlag(), getmLogFileState(),
+					"% Combine state: not unloading (default)\n",
+					"CombineOnStartWrite");
 		}
 	}
 
@@ -133,26 +137,23 @@ public class CombineActivity extends BasicGpsLoggingActivity {
 			buildAlertMessageDoneUnloading(this);
 
 			long date = System.currentTimeMillis();
-			try {
-				if (combineDoneUnloading) {
-					getMLogState()
-							.write(super.getFormatterClock().format(date)
-									+ " ("
-									+ date
-									+ ") Combine state changes to: not unloading");
-				} else {
-					getMLogState()
-							.write(super.getFormatterClock().format(date)
-									+ " ("
-									+ date
-									+ ") Combine state changes to: not unloading");
-				}
-			} catch (IOException e) {
-				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("CombineChangeStateWrite", e.toString());
+			String string;
+
+			if (combineDoneUnloading) {
+				string = super.getFormatterClock().format(date)
+						+ " ("
+						+ date
+						+ ") Combine state changes to: not unloading";
+			} else {
+				string = super.getFormatterClock().format(date)
+						+ " ("
+						+ date
+						+ ") Combine state changes to: not unloading";
 			}
+
+			LogFileWrite(getLogStateFlag(), getmLogFileState(),
+					string, "CombineChangeStateWrite");
+
 
 		} else {
 			// From "not unloading" to "unloading".
@@ -161,16 +162,11 @@ public class CombineActivity extends BasicGpsLoggingActivity {
 					R.color.kart_unloading));
 
 			long date = System.currentTimeMillis();
-			try {
-				getMLogState().write(
-						super.getFormatterClock().format(date) + " (" + date
-								+ ") Combine state changes to: unloading\n");
-			} catch (IOException e) {
-				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,
-						getString(R.string.gps_log_file_create_error));
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-				Log.e("CombineChangeStateWrite", e.toString());
-			}
+
+			LogFileWrite(getLogStateFlag(), getmLogFileState(),
+					super.getFormatterClock().format(date) + " (" + date
+							+ ") Combine state changes to: unloading\n",
+					"CombineChangeStateWrite");
 		}
 
 		changeStateButton.invalidate();
@@ -187,30 +183,23 @@ public class CombineActivity extends BasicGpsLoggingActivity {
 				.setPositiveButton(getString(R.string.button_yes),
 						new DialogInterface.OnClickListener() {
 							public void onClick(final DialogInterface dialog,
-									final int id) {
+												final int id) {
 								dialog.cancel();
 
-								try {
-									getMLogState().write(" (all unloaded)\n");
-								} catch (IOException e) {
-									Log.e("CombineChangeStateWrite",
-											e.toString());
-								}
+								LogFileWrite(getLogStateFlag(), getmLogFileState(),
+										" (all unloaded)\n",
+										"CombineChangeStateWrite");
 							}
 						})
 				.setNegativeButton(getString(R.string.button_no),
 						new DialogInterface.OnClickListener() {
 							public void onClick(final DialogInterface dialog,
-									final int id) {
+												final int id) {
 								dialog.cancel();
 
-								try {
-									getMLogState().write(
-											" (not all unloaded)\n");
-								} catch (IOException e) {
-									Log.e("CombineChangeStateWrite",
-											e.toString());
-								}
+								LogFileWrite(getLogStateFlag(), getmLogFileState(),
+										" (not all unloaded)\n",
+										"CombineChangeStateWrite");
 							}
 						});
 		final AlertDialog alert = builder.create();
