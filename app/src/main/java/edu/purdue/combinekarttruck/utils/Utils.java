@@ -161,11 +161,8 @@ public class Utils {
      */
     public static void toastStringTextAtCenterWithLargerSize(Context context,
                                                              String stringText) {
-
-
-
         CharSequence text = stringText;
-        int duration = Toast.LENGTH_SHORT;
+        int duration = 1000;
 
         Toast toast = Toast.makeText(context, text, duration);
 

@@ -69,6 +69,8 @@
 
     <!-- Rate Log -->
     <string name="rate_log_file_head">"% GPS time, lat, lon \nStart: systemTime, fileSize (GPS time) \nEnd: systemTime (GPS time), timeUsed (millisecond), downloadedSize (byte), rate (byte/second)\n"</string>
+    <string name="init_rate_test">Initiating the rate test...</string>
+    <string name="init_rate_test_counter">Num of rate test trials: 0</string>
 
     <!-- GPS Layout -->
     <string name="lat_gps_text_view_default">Lat: Loading…</string>

@@ -58,7 +58,7 @@ import edu.purdue.combinekarttruck.utils.Utils;
 public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		LocationListener {
 
-	private final boolean DEBUG_FLAG = false;
+	private final boolean DEBUG_FLAG = true;
 
 	/* By default, all will be logged. May be overwritten, e.g., in the WifiSpeedTestClientActivity.
     *
@@ -69,17 +69,25 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 	// For the rate test.
 	private boolean LOG_RATE_FLAG = true;
+
+	// ----------- Start of parameters set by the user -----------
 	// Only try to initiate a new rate test when this is false.
+	private String urlHost = DEBUG_FLAG? "http://192.168.1.80/":"http://192.168.1.2/";
+	private String rateTestFileSize = "20MB";
+	private String urlRateTestFile = urlHost + rateTestFileSize + ".zip.txt";
+	private String urlHostAvaiTestFile = urlHost + "hostAvaiTest.txt";
+	private float probabilyToInitiateRateTest = 1f;
+	// ----------- End of parameters set by the user -----------
 	private boolean isRateTestOnProgress = false;
-	private String urlRateTestFile = "http://192.168.1.80/20MB.zip.txt";
-	private float probabilyToInitiateRateTest = 0.05f;
+	// For feedback info.
+	private int numRateTestTrials = 0;
 
 	private boolean LOG_WIFI_FLAG = true;
 	private boolean LOG_CELL_FLAG = false;
 	private boolean LOG_STATE_FLAG = false;
 
 	// Set this to be true to only use GPS sensor for the location, instead of using a fused result.
-	private boolean GPS_ONLY_FOR_LOC = true;
+	private boolean GPS_ONLY_FOR_LOC = !DEBUG_FLAG;
 
 	private TelephonyManager mTelephonyManager;
 	private WifiManager mWifiManager;
@@ -97,6 +105,9 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	public String stringLoggedToCell;
 
 	private LocationManager mLocationManager;
+	private String textViewRateTestStr;
+	private TextView textViewRateTest;
+	private TextView textViewRateTestCounter;
 	private TextView textViewTime;
 	private SimpleDateFormat formatterUnderline = new SimpleDateFormat(
 			"yyyy_MM_dd_HH_mm_ss",
@@ -271,6 +282,13 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	protected void onResume() {
 		super.onResume();
 
+		if(LOG_RATE_FLAG) {
+			textViewRateTestStr = getString(R.string.init_rate_test);
+		} else {
+			textViewRateTest.setVisibility(View.GONE);
+			textViewRateTestCounter.setVisibility(View.GONE);
+		}
+
 		if (LOG_WIFI_FLAG) {
 			mWifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
 		}
@@ -280,6 +298,10 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		}
 
 		createLogFiles();
+
+		// Start the rate test textView.
+		textViewRateTest = ((TextView) findViewById(R.id.textViewRateTestResult));
+		textViewRateTestCounter = ((TextView) findViewById(R.id.textViewRateTestCounter));
 
 		// Start the timer textView.
 		textViewTime = ((TextView) findViewById(R.id.textViewTime));
@@ -298,6 +320,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 								Date date = new Date();
 								textViewTime.setText("Time: "
 										+ formatterClock.format(date));
+								textViewRateTest.setText(textViewRateTestStr);
 							}
 						});
 					}
@@ -418,23 +441,26 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 			if(!isRateTestOnProgress) {
 				Random r = new Random(cur_time);
 				if (r.nextFloat() < probabilyToInitiateRateTest) {
+					numRateTestTrials = numRateTestTrials + 1;
+					textViewRateTestStr = "Started a new test!";
+					textViewRateTestCounter.setText("Num of rate test trials: " + numRateTestTrials);
+
 					// Block other initiations in the future.
 					isRateTestOnProgress = true;
-					Utils.toastStringTextAtCenterWithLargerSize(this, "Initiating a speed test");
+					Utils.toastStringTextAtCenterWithLargerSize(this, "Try initiating a new speed test");
 					// Initiate the rate test.
 					new Thread(new Runnable() {
 						public void run() {
 							try {
-								// Get the expected file size but also stops if the server isn't
-								// reachable.
-								URL url = new URL(urlRateTestFile);
-								URLConnection urlConnection = url.openConnection();
-								urlConnection.connect();
-								long fileSize = urlConnection.getContentLength();
+								// Test if the server is reachable.
+								Object hostAvaiTestResult = Http.Get(urlHostAvaiTestFile);
+								Log.i("HttpGetHostAvaiTest", ((String) hostAvaiTestResult));
 
 								long startTime = System.currentTimeMillis();
+								textViewRateTestStr = "Started at " + formatterClock.format(startTime);
+
 								// Log at the start.
-								LogFileWrite(LOG_RATE_FLAG, mLogFileRate, "Start: " + startTime + ", " + fileSize
+								LogFileWrite(LOG_RATE_FLAG, mLogFileRate, "Start: " + startTime + ", " + rateTestFileSize
 												+ "\n",
 										"BasicActRateWrite");
 
@@ -447,14 +473,22 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 								float rate = ((float) downloadedSize) / timeUsed * 1000;
 
-								Log.i("HttpGet", "HttpGet(Done): File length: " + fileSize + ", Downloaded object size: " + downloadedSize + ", timeUsed: " + timeUsed +", Rate: " + rate);
+								textViewRateTestStr = "Ended at " + formatterClock.format(endTime) + " (Used " + timeUsed/1000.0 + " seconds) with " + rate/1024/1024 + " MiB/s";
+								Log.i("HttpGet", "HttpGet(Done): File length: " + rateTestFileSize + ", Downloaded object size: " + downloadedSize + ", timeUsed: " + timeUsed +", Rate: " + rate);
 
 								LogFileWrite(LOG_RATE_FLAG, mLogFileRate, "End: " + endTime + ", "
 												+ timeUsed + ", " + downloadedSize + ", " + rate
 												+ "\n",
 										"BasicActRateWrite");
 							} catch (Exception e){
-								Log.e("InitRateTest", e.toString());
+								String eMessage = e.toString();
+								if(eMessage.contains("EHOSTUNREACH")) {
+									textViewRateTestStr = "Server occupied/unreachable: Test aborted!";
+								} else {
+									textViewRateTestStr = "Unknown error: Test aborted!";
+								}
+
+								Log.e("InitRateTest", eMessage);
 							} finally {
 								// OK to initiate other rate tests now.
 								isRateTestOnProgress = false;
