@@ -58,9 +58,17 @@ import edu.purdue.combinekarttruck.utils.Utils;
 public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		LocationListener {
 
-	private final boolean DEBUG_FLAG = false;
+	private static final boolean DEBUG_FLAG = true;
 	// Set this to be true to only use GPS sensor for the location, instead of using a fused result.
-	private boolean GPS_ONLY_FOR_LOC = false;//!DEBUG_FLAG;
+	private static final boolean GPS_ONLY_FOR_LOC = false;//!DEBUG_FLAG;
+
+	public static boolean getDebugFlag() {
+		return DEBUG_FLAG;
+	}
+
+	public static boolean getGpsOnlyForLoc() {
+		return GPS_ONLY_FOR_LOC;
+	}
 
 	/* By default, all will be logged. May be overwritten, e.g., in the WifiSpeedTestClientActivity.
     *

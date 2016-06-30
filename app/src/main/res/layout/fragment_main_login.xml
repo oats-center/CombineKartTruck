@@ -26,13 +26,28 @@
         android:textSize="60sp"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/TextView01"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:text="@string/filling_space"
-        android:textSize="30sp" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/TextView01"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="@string/filling_space"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/textViewCurVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor= "#ff0000"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/LinearLayoutType"

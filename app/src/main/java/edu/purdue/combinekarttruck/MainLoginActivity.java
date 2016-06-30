@@ -172,6 +172,17 @@ public class MainLoginActivity extends ActionBarActivity {
 //		// Connect to the access point specified in Utils if necessary.
 //		Utils.reconnectToAccessPoint(Utils.getHostSsid(), Utils.getHostPasswordD(),
 //				Utils.isLockToHostSsid(), this);
+
+		// Show the setting info DEBUG_FLAG and GPS_ONLY_FOR_LOC
+		TextView textVewCurVersion = (TextView) findViewById(R.id.textViewCurVersion);
+		String curVersion = "";
+		if(BasicGpsLoggingActivity.getDebugFlag()) {
+			curVersion = curVersion + " DebugMod";
+		}
+		if(!BasicGpsLoggingActivity.getGpsOnlyForLoc()) {
+			curVersion = curVersion + " FusedLoc";
+		}
+		textVewCurVersion.setText(curVersion);
 	}
 
 	public void autoFillVehicleInfo() {
