@@ -15,6 +15,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 import android.widget.Toast;
 
@@ -24,6 +26,19 @@ import android.widget.Toast;
  * Ref: http://www.codeproject.com/Tips/1034468/Android-Simply-Sending-HTTP-GET-POST-Requests-To-S
  */
 public class Http {
+    public static Object GetTest(String url) throws Exception {
+        DefaultHttpClient hc = new DefaultHttpClient();
+
+        final HttpParams httpParameters = hc.getParams();
+        HttpConnectionParams.setConnectionTimeout(httpParameters, 100); // In millisecond.
+        HttpConnectionParams.setSoTimeout(httpParameters, 100);
+
+        ResponseHandler response = new BasicResponseHandler();
+        HttpGet http = new HttpGet(url);
+        final Object resp = hc.execute(http, response);
+        return resp;
+    }
+
     public static Object Get(String url) throws Exception {
         DefaultHttpClient hc = new DefaultHttpClient();
         ResponseHandler response = new BasicResponseHandler();

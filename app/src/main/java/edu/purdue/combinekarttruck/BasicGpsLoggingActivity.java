@@ -58,7 +58,9 @@ import edu.purdue.combinekarttruck.utils.Utils;
 public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		LocationListener {
 
-	private final boolean DEBUG_FLAG = true;
+	private final boolean DEBUG_FLAG = false;
+	// Set this to be true to only use GPS sensor for the location, instead of using a fused result.
+	private boolean GPS_ONLY_FOR_LOC = false;//!DEBUG_FLAG;
 
 	/* By default, all will be logged. May be overwritten, e.g., in the WifiSpeedTestClientActivity.
     *
@@ -85,9 +87,6 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	private boolean LOG_WIFI_FLAG = true;
 	private boolean LOG_CELL_FLAG = false;
 	private boolean LOG_STATE_FLAG = false;
-
-	// Set this to be true to only use GPS sensor for the location, instead of using a fused result.
-	private boolean GPS_ONLY_FOR_LOC = !DEBUG_FLAG;
 
 	private TelephonyManager mTelephonyManager;
 	private WifiManager mWifiManager;
@@ -439,21 +438,22 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 			// Try initiate the rate test if necessary.
 			if(!isRateTestOnProgress) {
+				// Block other initiations in the future.
+				isRateTestOnProgress = true;
+
 				Random r = new Random(cur_time);
 				if (r.nextFloat() < probabilyToInitiateRateTest) {
 					numRateTestTrials = numRateTestTrials + 1;
-					textViewRateTestStr = "Started a new test!";
+					textViewRateTestStr = "Starting a new test...";
 					textViewRateTestCounter.setText("Num of rate test trials: " + numRateTestTrials);
 
-					// Block other initiations in the future.
-					isRateTestOnProgress = true;
 					Utils.toastStringTextAtCenterWithLargerSize(this, "Try initiating a new speed test");
 					// Initiate the rate test.
 					new Thread(new Runnable() {
 						public void run() {
 							try {
 								// Test if the server is reachable.
-								Object hostAvaiTestResult = Http.Get(urlHostAvaiTestFile);
+								Object hostAvaiTestResult = Http.GetTest(urlHostAvaiTestFile);
 								Log.i("HttpGetHostAvaiTest", ((String) hostAvaiTestResult));
 
 								long startTime = System.currentTimeMillis();
@@ -483,7 +483,9 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 							} catch (Exception e){
 								String eMessage = e.toString();
 								if(eMessage.contains("EHOSTUNREACH")) {
-									textViewRateTestStr = "Server occupied/unreachable: Test aborted!";
+									textViewRateTestStr = "Server unreachable: Test aborted!";
+								} else if(eMessage.contains("Not Extended ")) {
+									textViewRateTestStr = "Server occupied: Test aborted!";
 								} else {
 									textViewRateTestStr = "Unknown error: Test aborted!";
 								}
