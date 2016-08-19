@@ -60,7 +60,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 	private static final boolean DEBUG_FLAG = true;
 	// Set this to be true to only use GPS sensor for the location, instead of using a fused result.
-	private static final boolean GPS_ONLY_FOR_LOC = false;//!DEBUG_FLAG;
+	private static final boolean GPS_ONLY_FOR_LOC = true;//!DEBUG_FLAG;
 
 	public static boolean getDebugFlag() {
 		return DEBUG_FLAG;
@@ -83,7 +83,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	// ----------- Start of parameters set by the user -----------
 	// Only try to initiate a new rate test when this is false.
 	private String urlHost = DEBUG_FLAG? "http://192.168.1.80/":"http://192.168.1.2/";
-	private String rateTestFileSize = "20MB";
+	private String rateTestFileSize = "50MB"; //"20MB";
 	private String urlRateTestFile = urlHost + rateTestFileSize + ".zip.txt";
 	private String urlHostAvaiTestFile = urlHost + "hostAvaiTest.txt";
 	private float probabilyToInitiateRateTest = 1f;
@@ -91,6 +91,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	private boolean isRateTestOnProgress = false;
 	// For feedback info.
 	private int numRateTestTrials = 0;
+	private String lastRateTestResult = "NotAvailable";
 
 	private boolean LOG_WIFI_FLAG = true;
 	private boolean LOG_CELL_FLAG = false;
@@ -315,7 +316,8 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		formatterClock = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss",
 				Locale.getDefault());
 
-		Thread threadTimer = new Thread() {
+		// Update some of the text on the screen around every 0.1s.
+		Thread threadTimerUpdateTexts = new Thread() {
 			@Override
 			public void run() {
 				try {
@@ -336,7 +338,97 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 				}
 			}
 		};
-		threadTimer.start();
+		threadTimerUpdateTexts.start();
+
+		// Try to initiate the rate test (only when it's not doing a rate test) after waiting 0~
+		// rateTestWaitTime milliseconds.
+		final long rateTestWaitTime = 1000;
+		Thread threadTimerRateTest = new Thread() {
+			@Override
+			public void run() {
+				try {
+					while (!isInterrupted()) {
+						Random r = new Random(System.currentTimeMillis());
+						double randomDouble= r.nextDouble();
+						long timeToWait = (long) Math.floor(randomDouble * rateTestWaitTime);
+						Thread.sleep(timeToWait);
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								// Try initiate the rate test if necessary.
+								if(!isRateTestOnProgress) {
+									// Block other initiations in the future.
+									isRateTestOnProgress = true;
+
+									Random r = new Random(System.currentTimeMillis());
+									if (r.nextFloat() < probabilyToInitiateRateTest) {
+										numRateTestTrials = numRateTestTrials + 1;
+										textViewRateTestStr = "Starting a new test...";
+										textViewRateTestCounter.setText("Num of rate test trials: " + numRateTestTrials + "\nLast result: " + lastRateTestResult);
+
+										// Utils.toastStringTextAtCenterWithLargerSize(this, "Try initiating a new speed test");
+										// Initiate the rate test.
+										new Thread(new Runnable() {
+											public void run() {
+												try {
+													// Test if the server is reachable.
+													Object hostAvaiTestResult = Http.GetTest(urlHostAvaiTestFile);
+													Log.i("HttpGetHostAvaiTest", ((String) hostAvaiTestResult));
+
+													long startTime = System.currentTimeMillis();
+													textViewRateTestStr = "Started at " + formatterClock.format(startTime);
+
+													// Log at the start.
+													LogFileWrite(LOG_RATE_FLAG, mLogFileRate, "Start: " + startTime + ", " + rateTestFileSize
+																	+ "\n",
+															"BasicActRateWrite");
+
+													Object result = Http.Get(urlRateTestFile);
+
+													// Log at the end.
+													long endTime = System.currentTimeMillis();
+													long timeUsed = endTime - startTime;
+													long downloadedSize = ((String) result).length();
+
+													float rate = ((float) downloadedSize) / timeUsed * 1000;
+
+													lastRateTestResult = rate/1024/1024 + " MiB/s";
+													textViewRateTestStr = "Ended at " + formatterClock.format(endTime) + " (Used " + timeUsed/1000.0 + " seconds) with " + lastRateTestResult;
+													Log.i("HttpGet", "HttpGet(Done): File length: " + rateTestFileSize + ", Downloaded object size: " + downloadedSize + ", timeUsed: " + timeUsed +", Rate: " + rate);
+
+													LogFileWrite(LOG_RATE_FLAG, mLogFileRate, "End: " + endTime + ", "
+																	+ timeUsed + ", " + downloadedSize + ", " + rate
+																	+ "\n",
+															"BasicActRateWrite");
+
+												} catch (Exception e){
+													String eMessage = e.toString();
+													if(eMessage.contains("EHOSTUNREACH")) {
+														textViewRateTestStr = "Server unreachable: Test aborted!";
+													} else if(eMessage.contains("Not Extended")) {
+														textViewRateTestStr = "Server occupied: Test aborted!";
+													} else {
+														textViewRateTestStr = "Unknown error: Test aborted!";
+													}
+
+													Log.e("InitRateTest", eMessage);
+												} finally {
+													// OK to initiate other rate tests now.
+													isRateTestOnProgress = false;
+												}
+											}
+										}).start();
+									}
+								}
+							}
+						});
+					}
+				} catch (Exception e) {
+					Log.e("BasicGpsLogTimer", e.toString());
+				}
+			}
+		};
+		threadTimerRateTest.start();
 
 		setBackgroundColor();
 
@@ -429,7 +521,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		long diffTime = cur_time-location.getTime();
 		Log.i("Debug", "Comparison of GPS time and system time. \nGpsTime: " + location.getTime() + ", SystemTime: " + cur_time  + ", DiffTime: " + diffTime);
 
-        LogFileWrite(LOG_GPS_FLAG, mLogFileGps, formatterClock.format(cur_time) + ", " + cur_time
+        LogFileWrite(LOG_GPS_FLAG, mLogFileGps, formatterClock.format(location.getTime()) + ", " + location.getTime()
                         + ", " + location.getLatitude() + ", "
                         + location.getLongitude() + ", " + location.getAltitude()
                         + ", " + location.getSpeed() + ", " + location.getBearing()
@@ -438,75 +530,11 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 		// Rate test logger.
 		if (LOG_RATE_FLAG) {
-            LogFileWrite(LOG_RATE_FLAG, mLogFileRate, cur_time
+            LogFileWrite(LOG_RATE_FLAG, mLogFileRate, location.getTime()
                             + ", " + location.getLatitude() + ", "
                             + location.getLongitude()
                             + "\n",
                     "BasicRateChanged");
-
-			// Try initiate the rate test if necessary.
-			if(!isRateTestOnProgress) {
-				// Block other initiations in the future.
-				isRateTestOnProgress = true;
-
-				Random r = new Random(cur_time);
-				if (r.nextFloat() < probabilyToInitiateRateTest) {
-					numRateTestTrials = numRateTestTrials + 1;
-					textViewRateTestStr = "Starting a new test...";
-					textViewRateTestCounter.setText("Num of rate test trials: " + numRateTestTrials);
-
-					Utils.toastStringTextAtCenterWithLargerSize(this, "Try initiating a new speed test");
-					// Initiate the rate test.
-					new Thread(new Runnable() {
-						public void run() {
-							try {
-								// Test if the server is reachable.
-								Object hostAvaiTestResult = Http.GetTest(urlHostAvaiTestFile);
-								Log.i("HttpGetHostAvaiTest", ((String) hostAvaiTestResult));
-
-								long startTime = System.currentTimeMillis();
-								textViewRateTestStr = "Started at " + formatterClock.format(startTime);
-
-								// Log at the start.
-								LogFileWrite(LOG_RATE_FLAG, mLogFileRate, "Start: " + startTime + ", " + rateTestFileSize
-												+ "\n",
-										"BasicActRateWrite");
-
-								Object result = Http.Get(urlRateTestFile);
-
-								// Log at the end.
-								long endTime = System.currentTimeMillis();
-								long timeUsed = endTime - startTime;
-								long downloadedSize = ((String) result).length();
-
-								float rate = ((float) downloadedSize) / timeUsed * 1000;
-
-								textViewRateTestStr = "Ended at " + formatterClock.format(endTime) + " (Used " + timeUsed/1000.0 + " seconds) with " + rate/1024/1024 + " MiB/s";
-								Log.i("HttpGet", "HttpGet(Done): File length: " + rateTestFileSize + ", Downloaded object size: " + downloadedSize + ", timeUsed: " + timeUsed +", Rate: " + rate);
-
-								LogFileWrite(LOG_RATE_FLAG, mLogFileRate, "End: " + endTime + ", "
-												+ timeUsed + ", " + downloadedSize + ", " + rate
-												+ "\n",
-										"BasicActRateWrite");
-							} catch (Exception e){
-								String eMessage = e.toString();
-								if(eMessage.contains("EHOSTUNREACH")) {
-									textViewRateTestStr = "Server unreachable: Test aborted!";
-								} else if(eMessage.contains("Not Extended ")) {
-									textViewRateTestStr = "Server occupied: Test aborted!";
-								} else {
-									textViewRateTestStr = "Unknown error: Test aborted!";
-								}
-
-								Log.e("InitRateTest", eMessage);
-							} finally {
-								// OK to initiate other rate tests now.
-								isRateTestOnProgress = false;
-							}
-						}
-					}).start();
-				}
-			}
 		}
 
 		// Wifi strength logger.
@@ -527,7 +555,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 					}
 				}
 
-				LogFileWrite(LOG_WIFI_FLAG, mLogFileWifi, formatterClock.format(cur_time) + ", " + cur_time
+				LogFileWrite(LOG_WIFI_FLAG, mLogFileWifi, formatterClock.format(location.getTime()) + ", " + location.getTime()
 								+ ", " + location.getLatitude() + ", "
 								+ location.getLongitude() + ", " + location.getAltitude()
 								+ ", " + location.getSpeed() + ", " + location.getBearing()
@@ -565,22 +593,20 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 			try {
 
 				List<CellInfo> allCellInfo = mTelephonyManager.getAllCellInfo();
-				cur_time = System.currentTimeMillis();
 				long elapsed_time = android.os.SystemClock.elapsedRealtime();
 
 				LogFileWrite(LOG_CELL_FLAG, mLogFileCellVerbose,
-						"----- " + formatterClock.format(cur_time) + ", "
-								+ cur_time + "," + elapsed_time + "\n",
+						"----- " + formatterClock.format(location.getTime()) + ", "
+								+ location.getTime() + "," + elapsed_time + "\n",
 						"BasicActCellVerboseWrite");
 
 				boolean flagUnkownCellInfoFound = false;
 				for (final CellInfo info : allCellInfo) {
 
-					cur_time = System.currentTimeMillis();
 					elapsed_time = android.os.SystemClock.elapsedRealtime();
 
 					LogFileWrite(LOG_CELL_FLAG, mLogFileCellVerbose,
-							formatterClock.format(cur_time) + ", " + cur_time + "," + elapsed_time
+							formatterClock.format(location.getTime()) + ", " + location.getTime() + "," + elapsed_time
 									+ ", " + info.toString() + "\n",
 							"BasicActCellVerboseWrite");
 
@@ -658,7 +684,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 				Log.e("CellStrengthLogger", "Unable to obtain cell signal information", e);
 			}
 
-			setStringLoggedToCell(formatterClock.format(cur_time) + ", " + cur_time
+			setStringLoggedToCell(formatterClock.format(location.getTime()) + ", " + location.getTime()
 					+ ", " + location.getLatitude() + ", "
 					+ location.getLongitude() + ", " + location.getSpeed() + ", "
 					+ location.getBearing() + ", "
