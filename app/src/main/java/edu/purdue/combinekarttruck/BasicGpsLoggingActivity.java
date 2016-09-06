@@ -58,6 +58,7 @@ import edu.purdue.combinekarttruck.utils.Utils;
 public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		LocationListener {
 
+	// Determines urlHost.
 	private static final boolean DEBUG_FLAG = true;
 	// Set this to be true to only use GPS sensor for the location, instead of using a fused result.
 	private static final boolean GPS_ONLY_FOR_LOC = true;//!DEBUG_FLAG;
@@ -79,6 +80,11 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 	// For the rate test.
 	private boolean LOG_RATE_FLAG = true;
+	private boolean LOG_RATE_ABORTED_FLAG = LOG_RATE_FLAG && true;
+	// For other loggers.
+	private boolean LOG_WIFI_FLAG = true;
+	private boolean LOG_CELL_FLAG = false;
+	private boolean LOG_STATE_FLAG = false;
 
 	// ----------- Start of parameters set by the user -----------
 	// Only try to initiate a new rate test when this is false.
@@ -93,10 +99,6 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	private int numRateTestTrials = 0;
 	private String lastRateTestResult = "NotAvailable";
 
-	private boolean LOG_WIFI_FLAG = true;
-	private boolean LOG_CELL_FLAG = false;
-	private boolean LOG_STATE_FLAG = false;
-
 	private TelephonyManager mTelephonyManager;
 	private WifiManager mWifiManager;
 
@@ -107,7 +109,9 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	private LogFile mLogFileCellVerbose = new LogFile();
     // For the rate test.
 	private LogFile mLogFileWifi = new LogFile();
+
 	private LogFile mLogFileRate = new LogFile();
+	private LogFile mLogFileRateAborted = new LogFile();
 
 	// For cell log display on the screen.
 	public String stringLoggedToCell;
@@ -370,12 +374,13 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 										// Initiate the rate test.
 										new Thread(new Runnable() {
 											public void run() {
+												long startTime = System.currentTimeMillis();
 												try {
 													// Test if the server is reachable.
 													Object hostAvaiTestResult = Http.GetTest(urlHostAvaiTestFile);
 													Log.i("HttpGetHostAvaiTest", ((String) hostAvaiTestResult));
 
-													long startTime = System.currentTimeMillis();
+													startTime = System.currentTimeMillis();
 													textViewRateTestStr = "Started at " + formatterClock.format(startTime);
 
 													// Log at the start.
@@ -402,16 +407,32 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 															"BasicActRateWrite");
 
 												} catch (Exception e){
+													long endTime = System.currentTimeMillis();
+													long timeUsed = endTime - startTime;
+
+													String eLabel;
 													String eMessage = e.toString();
-													if(eMessage.contains("EHOSTUNREACH")) {
-														textViewRateTestStr = "Server unreachable: Test aborted!";
+													if(eMessage.contains("ConnectTimeout")) {
+														eLabel = "ConnectTimeout";
+														textViewRateTestStr = "Connect timed out...";
+													} else if(eMessage.contains("EHOSTUNREACH")) {
+														eLabel = "ServerUnreachable";
+														textViewRateTestStr = "Server unreachable...";
 													} else if(eMessage.contains("Not Extended")) {
-														textViewRateTestStr = "Server occupied: Test aborted!";
+														eLabel = "ServerOccupied";
+														textViewRateTestStr = "Server occupied...";
 													} else {
-														textViewRateTestStr = "Unknown error: Test aborted!";
+														eLabel = "UnknownError:" + eMessage;
+														textViewRateTestStr = "Unknown error: " + eMessage;
 													}
 
 													Log.e("InitRateTest", eMessage);
+
+													LogFileWrite(LOG_RATE_ABORTED_FLAG, mLogFileRateAborted, startTime + ", " + endTime + ", "
+																	+ timeUsed + ", " + eLabel
+																	+ "\n",
+															"BasicActRateWrite");
+
 												} finally {
 													// OK to initiate other rate tests now.
 													isRateTestOnProgress = false;
@@ -750,6 +771,9 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		mLogFileRate = createLogFile(LOG_RATE_FLAG, mLogFileRate,
 				"rate", getString(R.string.rate_log_file_head), "BasicRateLogCreate");
 
+		mLogFileRateAborted = createLogFile(LOG_RATE_ABORTED_FLAG, mLogFileRateAborted,
+				"abortedRate", getString(R.string.rate_aborted_log_file_head), "BasicRateAbortedLogCreate");
+
 		mLogFileWifi = createLogFile(LOG_WIFI_FLAG, mLogFileWifi,
 				"wifi", getString(R.string.wifi_log_file_head), "BasicWifiLogCreate");
 
@@ -797,6 +821,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		mLogFileCellVerbose = closeLogFile(LOG_CELL_FLAG, mLogFileCellVerbose, "closeCellVerboseLog");
 		mLogFileWifi = closeLogFile(LOG_WIFI_FLAG, mLogFileWifi, "closeWifiLog");
 		mLogFileRate = closeLogFile(LOG_RATE_FLAG, mLogFileRate, "closeRateLog");
+		mLogFileRateAborted = closeLogFile(LOG_RATE_ABORTED_FLAG, mLogFileRateAborted, "closeRateAbortedLog");
 	}
 
 	public void LogFileWrite(boolean logFlag, LogFile logFile, String string, String errorTag) {

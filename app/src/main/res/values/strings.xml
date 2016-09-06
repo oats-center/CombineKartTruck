@@ -70,7 +70,8 @@
     <string name="wifi_conn_log_file_head">"% ------\nTime, GPS time (ms), elapsedRealtime (Time since boot in ms), connectedWifiSSID\nNum, SSID, BSSID, RssiDbm, frequency, timeStamp\n"</string>
 
     <!-- Rate Log -->
-    <string name="rate_log_file_head">"% GPS time, lat, lon, systemTime, sysTime-gpsTime\nStart: systemTime (ms), fileSize (GPS time) \nEnd: systemTime (ms), timeUsed (millisecond), downloadedSize (byte), rate (byte/second)\n"</string>
+    <string name="rate_log_file_head">"% GPS time, lat, lon, systemTime, sysTime-gpsTime\nStart: systemTime (ms), fileSize (GPS time) \nEnd: systemTime (ms), timeUsed (millisecond), downloadedSize (byte), rate (byte/second) OR Abort: systemTime (ms), timeUsed (millisecond), errorMessage\n"</string>
+    <string name="rate_aborted_log_file_head">"% systemTimeStart (ms), systemTimeEnd (ms), timeUsed (ms), errorMessage\n"</string>
     <string name="init_rate_test">Initiating the rate test...</string>
     <string name="init_rate_test_counter">Num of rate test trials: 0</string>
 
