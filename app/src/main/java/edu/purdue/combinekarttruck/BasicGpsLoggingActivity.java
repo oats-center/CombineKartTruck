@@ -496,6 +496,24 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 	@Override
 	public void onLocationChanged(Location location) {
+
+		/**
+		 * First thing: get the difference between the system time and GPS time.
+		 */
+		// Update: we will record both the system time and the GPS time, just in case.
+		//
+		// Note: for simple time synchronization between multiple tablets, we are using the system
+		// time as GPS time instead of the true GPS time from the sample: location.getTime().
+		long cur_sys_time = System.currentTimeMillis();
+
+		// As of July 2015, GPS time is 17 seconds ahead of UTC because of the leap second added to
+		// UTC June 30, 2015. If the system time is perfectly synched, we should see a difference of
+		// around -17000 ms.
+		long diff_time = cur_sys_time-location.getTime();
+
+		/**
+		 * Show the information on the screen.
+		 */
 		TextView ckt = ((TextView) findViewById(R.id.textViewCktState));
 
 		TextView latGps = ((TextView) findViewById(R.id.textViewLatGps));
@@ -514,18 +532,19 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		bearingGps.setText("Bearing: " + location.getBearing());
 		accuracyGps.setText("Accuracy: " + location.getAccuracy());
 
-		// Note: for simple time synchronization between multiple tablets, we are using the system
-		// time as GPS time instead of the true GPS time from the sample: location.getTime().
-		long cur_time = System.currentTimeMillis();
+		Log.i("Debug", "Comparison of GPS time and system time. \nGpsTime: " + location.getTime() + ", SystemTime: " + cur_sys_time  + ", DiffTime: " + diff_time);
 
-		long diffTime = cur_time-location.getTime();
-		Log.i("Debug", "Comparison of GPS time and system time. \nGpsTime: " + location.getTime() + ", SystemTime: " + cur_time  + ", DiffTime: " + diffTime);
-
-        LogFileWrite(LOG_GPS_FLAG, mLogFileGps, formatterClock.format(location.getTime()) + ", " + location.getTime()
+		/**
+		 * Log in to files.
+		 */
+		// GPS logger.
+        LogFileWrite(LOG_GPS_FLAG, mLogFileGps, formatterClock.format(cur_sys_time) + ", " + location.getTime()
                         + ", " + location.getLatitude() + ", "
                         + location.getLongitude() + ", " + location.getAltitude()
                         + ", " + location.getSpeed() + ", " + location.getBearing()
-                        + ", " + location.getAccuracy() + "\n",
+                        + ", " + location.getAccuracy()
+						+ ", " + cur_sys_time + ", " + diff_time
+						+ "\n",
                 "BasicActGpsWrite");
 
 		// Rate test logger.
@@ -533,6 +552,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
             LogFileWrite(LOG_RATE_FLAG, mLogFileRate, location.getTime()
                             + ", " + location.getLatitude() + ", "
                             + location.getLongitude()
+							+ ", " + cur_sys_time + ", " + diff_time
                             + "\n",
                     "BasicRateChanged");
 		}
@@ -555,12 +575,14 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 					}
 				}
 
-				LogFileWrite(LOG_WIFI_FLAG, mLogFileWifi, formatterClock.format(location.getTime()) + ", " + location.getTime()
+				LogFileWrite(LOG_WIFI_FLAG, mLogFileWifi, formatterClock.format(cur_sys_time) + ", " + location.getTime()
 								+ ", " + location.getLatitude() + ", "
 								+ location.getLongitude() + ", " + location.getAltitude()
 								+ ", " + location.getSpeed() + ", " + location.getBearing()
 								+ ", " + location.getAccuracy() + ", "
-								+ connectedId + ", " + RSSI + "\n",
+								+ connectedId + ", " + RSSI
+								+ ", " + cur_sys_time + ", " + diff_time
+								+ "\n",
 						"BasicActWifiWrite");
 			} catch (IOException e) {
 				MainLoginActivity.toastStringTextAtCenterWithLargerSize(this,

@@ -48,7 +48,6 @@
     <string name="gps_log_file_close_error">Could not close log file!\n</string>
 
     <string name="gps_log_file_write_error">Could not log GPS data!\n</string>
-    <string name="gps_log_file_head">"% Time, GPS time, lat, lon, altitude, speed, bearing, accuracy\n"</string>
 
     <string name="log_file_create_error">Could not create log file!\n</string>
     <string name="log_file_close_error">Could not close log file!\n</string>
@@ -57,18 +56,21 @@
     <string name="gps_please_enable_it">Your GPS seems to be disabled. Please check and enalbe it.</string>
     <string name="gps_warning_may_not_working">Warning! The location logger may crash without GPS service.</string>
 
+    <!-- GPS log -->
+    <string name="gps_log_file_head">"% Time, GPS time, lat, lon, altitude, speed, bearing, accuracy, systemTime, sysTime-gpsTime\n"</string>
+
     <!-- Cell Log -->
     <string name="cell_log_file_head">"% Time, GPS time, lat, lon, speed, bearing, gsmIds, gsmDbms, gsmTimeStamps, cdmaIds, cdmaDbms, cdmaTimeStamps, wcdmaIds, wcdmaDbms, wcdmaTimeStamps, lteIds, lteDbms, lteTimeStamps, otherCellInfo\n"</string>
     <string name="cell_verbose_log_file_head">"% Time, GPS time (ms), GpsTimeStamp (Time since boot in ms), CellInfoType:{attributes}\n"</string>
 
     <!-- Wifi Log -->
-    <string name="wifi_log_file_head">"% Time, GPS time, lat, lon, altitude, speed, bearing, accuracy, connectedId, RSSI \n"</string>
+    <string name="wifi_log_file_head">"% Time, GPS time, lat, lon, altitude, speed, bearing, accuracy, connectedId, RSSI, systemTime, sysTime-gpsTime\n"</string>
 
     <string name="wifi_disc_log_file_head">"% ------\nTime, GPS time (ms), elapsedRealtime (Time since boot in ms)\nNum, SSID, BSSID, RssiDbm, frequency, timeStamp\n"</string>
     <string name="wifi_conn_log_file_head">"% ------\nTime, GPS time (ms), elapsedRealtime (Time since boot in ms), connectedWifiSSID\nNum, SSID, BSSID, RssiDbm, frequency, timeStamp\n"</string>
 
     <!-- Rate Log -->
-    <string name="rate_log_file_head">"% GPS time, lat, lon \nStart: systemTime, fileSize (GPS time) \nEnd: systemTime (GPS time), timeUsed (millisecond), downloadedSize (byte), rate (byte/second)\n"</string>
+    <string name="rate_log_file_head">"% GPS time, lat, lon, systemTime, sysTime-gpsTime\nStart: systemTime (ms), fileSize (GPS time) \nEnd: systemTime (ms), timeUsed (millisecond), downloadedSize (byte), rate (byte/second)\n"</string>
     <string name="init_rate_test">Initiating the rate test...</string>
     <string name="init_rate_test_counter">Num of rate test trials: 0</string>
 
