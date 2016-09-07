@@ -194,6 +194,8 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		return sharedPref;
 	}
 
+	public Thread threadTimerUpdateTexts, threadTimerRateTest;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		actionBarActivityOnCreate(savedInstanceState);
@@ -321,7 +323,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 				Locale.getDefault());
 
 		// Update some of the text on the screen around every 0.1s.
-		Thread threadTimerUpdateTexts = new Thread() {
+		threadTimerUpdateTexts = new Thread() {
 			@Override
 			public void run() {
 				try {
@@ -347,7 +349,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		// Try to initiate the rate test (only when it's not doing a rate test) after waiting 0~
 		// rateTestWaitTime milliseconds.
 		final long rateTestWaitTime = 1000;
-		Thread threadTimerRateTest = new Thread() {
+		threadTimerRateTest = new Thread() {
 			@Override
 			public void run() {
 				try {
@@ -502,6 +504,9 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	@Override
 	public void onPause() {
 		super.onPause();
+
+		threadTimerUpdateTexts.interrupt();
+		threadTimerRateTest.interrupt();
 
 		TextView ckt = ((TextView) findViewById(R.id.textViewCktState));
 		ckt.setText(getString(R.string.ckt_state_loading));
@@ -838,6 +843,8 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 						logFile.getName() + "\n" +
 								getString(R.string.log_file_write_error));
 				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+				Log.e(errorTag, e.toString());
+			} catch (Exception e) {
 				Log.e(errorTag, e.toString());
 			}
 		}
