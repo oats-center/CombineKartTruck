@@ -3,6 +3,10 @@ package edu.purdue.combinekarttruck;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -24,6 +28,7 @@ import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthWcdma;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,6 +44,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -55,7 +61,7 @@ import edu.purdue.combinekarttruck.utils.Utils;
  * Available at https://github.com/OATS-Group/android-logger
  */
 
-public class BasicGpsLoggingActivity extends ActionBarActivity implements
+public class BasicLoggingActivity extends ActionBarActivity implements
 		LocationListener {
 
 	// Determines urlHost.
@@ -81,6 +87,8 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	// For the rate test.
 	private boolean LOG_RATE_FLAG = true;
 	private boolean LOG_RATE_ABORTED_FLAG = LOG_RATE_FLAG && true;
+	// For sensors.
+	private boolean LOG_SENSORS_FLAG = true;
 	// For other loggers.
 	private boolean LOG_WIFI_FLAG = true;
 	private boolean LOG_CELL_FLAG = false;
@@ -112,6 +120,8 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 	private LogFile mLogFileRate = new LogFile();
 	private LogFile mLogFileRateAborted = new LogFile();
+
+	private LogFile mLogFileSensors = new LogFile();
 
 	// For cell log display on the screen.
 	public String stringLoggedToCell;
@@ -196,6 +206,10 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 	public Thread threadTimerUpdateTexts, threadTimerRateTest;
 
+	// For logging data from motion sensors.
+	private SensorManager mSensorManager;
+	private List<Sensor> availableSensors;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		actionBarActivityOnCreate(savedInstanceState);
@@ -277,6 +291,13 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		} catch (SecurityException e) {
 			Log.e("BasicGpsLogging", e.toString());
 		}
+
+		if (LOG_SENSORS_FLAG) {
+			// Get all available sensors.
+			mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+			availableSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+		}
+
 	}
 
 	public String getLoginType() {
@@ -455,6 +476,12 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 		setBackgroundColor();
 
+		if (LOG_SENSORS_FLAG) {
+			// Register sensors.
+			for (Sensor s : availableSensors) {
+				mSensorManager.registerListener(mSensorListener, s, SensorManager.SENSOR_DELAY_GAME);
+			}
+		}
 	}
 
 	public void setBackgroundColor() {
@@ -505,6 +532,10 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 	public void onPause() {
 		super.onPause();
 
+		if (LOG_SENSORS_FLAG) {
+			// Unregister sensors.
+			mSensorManager.unregisterListener(mSensorListener);
+		}
 		threadTimerUpdateTexts.interrupt();
 		threadTimerRateTest.interrupt();
 
@@ -784,6 +815,9 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 
 		mLogFileCell = createLogFile(LOG_CELL_FLAG, mLogFileCell,
 				"cell", getString(R.string.cell_log_file_head), "BasicCellLogCreate");
+
+		mLogFileSensors = createLogFile(LOG_SENSORS_FLAG, mLogFileSensors,
+				"sensors", availableSensors.toString() + "\n", "BasicSensorsLogCreate");
 	}
 
 	public LogFile createLogFile(boolean logFlag, LogFile logFile,
@@ -827,6 +861,7 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 		mLogFileWifi = closeLogFile(LOG_WIFI_FLAG, mLogFileWifi, "closeWifiLog");
 		mLogFileRate = closeLogFile(LOG_RATE_FLAG, mLogFileRate, "closeRateLog");
 		mLogFileRateAborted = closeLogFile(LOG_RATE_ABORTED_FLAG, mLogFileRateAborted, "closeRateAbortedLog");
+		mLogFileSensors = closeLogFile(LOG_SENSORS_FLAG, mLogFileSensors, "closeSensorsLog");
 	}
 
 	public void LogFileWrite(boolean logFlag, LogFile logFile, String string, String errorTag) {
@@ -911,4 +946,32 @@ public class BasicGpsLoggingActivity extends ActionBarActivity implements
 			return logFileName;
 		}
 	}
+
+	private SensorEventListener mSensorListener = new SensorEventListener() {
+		@Override
+		public void onAccuracyChanged(Sensor arg0, int arg1) {
+		}
+
+		@Override
+		public void onSensorChanged(SensorEvent event) {
+			long curSysTime = System.currentTimeMillis();
+			String curValues = "[]";
+
+			if (event.values.length>=1) {
+				curValues = "[" + event.values[0];
+
+				if (event.values.length>=2) {
+					for (int i = 1; i < event.values.length; i++) {
+						curValues = curValues + ", " + event.values[i];
+					}
+				}
+
+				curValues = curValues + "]";
+			}
+
+			LogFileWrite(LOG_SENSORS_FLAG, mLogFileSensors,
+					formatterClock.format(curSysTime) + ", " + curSysTime + ", " + event.sensor.getName() + ", " + event.timestamp + ", " + curValues + "\n",
+					"BasicActSensorsWrite");
+		}
+	};
 }

@@ -43,7 +43,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="edu.purdue.combinekarttruck.BasicGpsLoggingActivity"
+            android:name=".BasicLoggingActivity"
             android:label="@string/title_activity_combine"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
             android:screenOrientation="portrait" >

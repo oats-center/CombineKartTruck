@@ -35,7 +35,7 @@ import android.widget.Toast;
 
 import edu.purdue.combinekarttruck.utils.Utils;
 
-public class TruckActivity extends BasicGpsLoggingActivity {
+public class TruckActivity extends BasicLoggingActivity {
 	// For the taking a picture function.
 	static final int REQUEST_TAKE_PHOTO = 1;
 	private File tempImageFile;

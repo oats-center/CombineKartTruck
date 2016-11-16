@@ -176,10 +176,10 @@ public class MainLoginActivity extends ActionBarActivity {
 		// Show the setting info DEBUG_FLAG and GPS_ONLY_FOR_LOC
 		TextView textVewCurVersion = (TextView) findViewById(R.id.textViewCurVersion);
 		String curVersion = "";
-		if(BasicGpsLoggingActivity.getDebugFlag()) {
+		if(BasicLoggingActivity.getDebugFlag()) {
 			curVersion = curVersion + " DebugMod";
 		}
-		if(!BasicGpsLoggingActivity.getGpsOnlyForLoc()) {
+		if(!BasicLoggingActivity.getGpsOnlyForLoc()) {
 			curVersion = curVersion + " FusedLoc";
 		}
 		textVewCurVersion.setText(curVersion);
