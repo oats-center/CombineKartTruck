@@ -479,7 +479,11 @@ public class BasicLoggingActivity extends ActionBarActivity implements
 		if (LOG_SENSORS_FLAG) {
 			// Register sensors.
 			for (Sensor s : availableSensors) {
-				mSensorManager.registerListener(mSensorListener, s, SensorManager.SENSOR_DELAY_GAME);
+				if(s.getMinDelay() == 5000) {
+					mSensorManager.registerListener(mSensorListener, s, SensorManager.SENSOR_DELAY_GAME);
+				} else {
+					mSensorManager.registerListener(mSensorListener, s, SensorManager.SENSOR_DELAY_FASTEST);
+				}
 			}
 		}
 	}
@@ -970,7 +974,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
 			}
 
 			LogFileWrite(LOG_SENSORS_FLAG, mLogFileSensors,
-					formatterClock.format(curSysTime) + ", " + curSysTime + ", " + event.sensor.getName() + ", " + event.timestamp + ", " + curValues + "\n",
+					formatterClock.format(curSysTime) + ", " + curSysTime + ", " + event.sensor.getName() + ", " + event.sensor.getStringType() + ", " + event.timestamp + ", " + curValues + "\n",
 					"BasicActSensorsWrite");
 		}
 	};
