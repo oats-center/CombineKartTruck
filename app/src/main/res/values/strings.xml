@@ -25,6 +25,9 @@
     <string name="filling_space">" "</string>
     <string name="warning_toast_unknown_vehicle">Warning! The vehicle type regestered with this ID is unknown!\nThe preference file may be corrupted!/nYou can try another ID.</string>
     <string name="temp_image_create_error">Could not create the temp image file!\n</string>
+    <string name="shared_preference_being_charged_on_login">edu.purdue.combinekarttruck.being_charged_on_login</string>
+    <string name="shared_preference_ok_to_exit">edu.purdue.combinekarttruck
+        .ok_to_exit</string>
 
     <!-- Pick ID Page -->
     <string name="pick_registered_ids">Pick an ID</string>
@@ -121,5 +124,6 @@
     <string name="title_activity_simplified_combine">SimplifiedCombineAcitivity</string>
     <string name="title_activity_kart">KartActivity</string>
     <string name="title_activity_truck">TruckActivity</string>
+    <string name="title_activity_basic_logging">BasicLoggingActivity</string>
 
 </resources>

@@ -18,6 +18,22 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+
+    <!--&lt;!&ndash; For auto start on boot completion. &ndash;&gt;-->
+    <!--<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
+    <!--<receiver-->
+        <!--android:enabled="true"-->
+        <!--android:exported="true"-->
+        <!--android:name="edu.purdue.combinekarttruck.RunMainLoginActivityOnStartup"-->
+        <!--android:permission="android.permission.RECEIVE_BOOT_COMPLETED">-->
+
+        <!--<intent-filter>-->
+            <!--<action android:name="android.intent.action.BOOT_COMPLETED" />-->
+            <!--<action android:name="android.intent.action.QUICKBOOT_POWERON" />-->
+            <!--<category android:name="android.intent.category.DEFAULT" />-->
+        <!--</intent-filter>-->
+    <!--</receiver>-->
+
     <uses-sdk
         android:minSdkVersion="18"
         android:targetSdkVersion="23" />
@@ -35,7 +51,8 @@
         <activity
             android:name="edu.purdue.combinekarttruck.MainLoginActivity"
             android:label="@string/app_name"
-            android:windowSoftInputMode="stateAlwaysHidden" >
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:launchMode="singleInstance" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,9 +61,10 @@
         </activity>
         <activity
             android:name=".BasicLoggingActivity"
-            android:label="@string/title_activity_combine"
+            android:label="@string/title_activity_basic_logging"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:launchMode="singleInstance" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.purdue.combinekarttruck.MainLoginActivity" />
@@ -55,7 +73,8 @@
             android:name="edu.purdue.combinekarttruck.SimplifiedCombineActivity"
             android:label="@string/title_activity_simplified_combine"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:launchMode="singleInstance" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.purdue.combinekarttruck.MainLoginActivity" />
@@ -64,7 +83,8 @@
             android:name="edu.purdue.combinekarttruck.CombineActivity"
             android:label="@string/title_activity_combine"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
-            android:screenOrientation="landscape" >
+            android:screenOrientation="landscape"
+            android:launchMode="singleInstance" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.purdue.combinekarttruck.MainLoginActivity" />
@@ -73,7 +93,8 @@
             android:name="edu.purdue.combinekarttruck.KartActivity"
             android:label="@string/title_activity_kart"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
-            android:screenOrientation="landscape" >
+            android:screenOrientation="landscape"
+            android:launchMode="singleInstance" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainLoginActivity" />
@@ -82,11 +103,18 @@
             android:name="edu.purdue.combinekarttruck.TruckActivity"
             android:label="@string/title_activity_truck"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
-            android:screenOrientation="landscape" >
+            android:screenOrientation="landscape"
+            android:launchMode="singleInstance" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.purdue.combinekarttruck.MainLoginActivity" />
         </activity>
+        <receiver android:name="edu.purdue.combinekarttruck.BasicLoggingActivity$PowerConnectionReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -53,6 +53,10 @@ public class Utils {
     // For locking Wifi connected to a hotspot with a specific SSID.
     private static WifiConfiguration wifiConfig = null;
     private static WifiManager wifiManager = null;
+
+    // For automatically stop logging and exit the app when disconnect the charger.
+    public final static int OK_TO_EXIT_NOT_SET = 0, OK_TO_EXIT_READY = 1, OK_TO_EXIT_CONFIRMED = 2;
+
     public static boolean reconnectToAccessPoint(String ssid, String password, boolean flagToConfirm, Context context){
         if(flagToConfirm){
             // Initiate wifiConfig if it's necessary.
