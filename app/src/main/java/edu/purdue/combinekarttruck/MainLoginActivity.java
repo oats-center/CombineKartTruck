@@ -66,6 +66,9 @@ public class MainLoginActivity extends ActionBarActivity {
     private static MediaPlayer mediaPlayer;
     private Thread threadAttentionNeededSound;
 
+    // For prevent multiple instances of the login activity.
+    private static int numLoginActsExisted = 0;
+
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save the user's current setting.
@@ -78,6 +81,16 @@ public class MainLoginActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (numLoginActsExisted < 0) {
+            numLoginActsExisted = 0;
+        } else if(numLoginActsExisted >1) {
+            numLoginActsExisted = 0;
+        }
+        numLoginActsExisted ++;
+        if (numLoginActsExisted > 1) {
+            finish();
+        }
         setContentView(R.layout.activity_main_login);
 
         if (savedInstanceState != null) {
@@ -224,7 +237,7 @@ public class MainLoginActivity extends ActionBarActivity {
                             Thread.sleep(10000);
                         }
                     } catch (Exception e) {
-                        Log.e("threadAttentionNeededSound", e.toString());
+                        Log.e("threadAttNeededSound", e.toString());
                     }
                 }
             };
@@ -260,6 +273,12 @@ public class MainLoginActivity extends ActionBarActivity {
         if (threadAttentionNeededSound != null) {
             threadAttentionNeededSound.interrupt();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        numLoginActsExisted --;
     }
 
     @Override

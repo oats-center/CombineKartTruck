@@ -130,9 +130,12 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     private SensorManager mSensorManager;
     private List<Sensor> availableSensors;
     // Automatically stop logging when the device is being charged at first but stops.
+    private final long TIME_BEFORE_AUTO_STOP_LOGGING = 10000; // In milisecond.
+    private long timer_auto_stop_logging_start = 0;
     private IntentFilter batteryChargedFilter;
     private Intent batteryStatus;
     private static boolean isCharging;
+
     private SensorEventListener mSensorListener = new SensorEventListener() {
         @Override
         public void onAccuracyChanged(Sensor arg0, int arg1) {
@@ -561,8 +564,8 @@ public class BasicLoggingActivity extends ActionBarActivity implements
         // Auto stop logging.
         batteryChargedFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         batteryStatus = this.registerReceiver(null, batteryChargedFilter);
-        isCharging = deviceBeingCharged(batteryStatus);
-        if ( isCharging /* &&
+        final Context batteryContext = this;
+        if ( deviceBeingCharged(batteryStatus) /* &&
                 sharedPref.getBoolean(
                         getString(R.string.shared_preference_being_charged_on_login),
                         false) */
@@ -570,7 +573,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
             // The device was being charged on the login page and is also being charged now. We will
             // stop the logger automatically if the charger is disconnected after this.
 
-            // Set a receiver for the battery.
+            // Set a thread to check the battery status.
             threadBatteryDisc = new Thread() {
                 @Override
                 public void run() {
@@ -579,25 +582,43 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (!isCharging) {
-                                        threadBatteryDisc.interrupt();
+                                    if (deviceBeingCharged(batteryContext)) {
+                                        // Reset the counter to no-need-to-auto-stop state.
+                                        timer_auto_stop_logging_start = 0;
+                                    } else {
+                                        if (timer_auto_stop_logging_start == 0) {
+                                            // Start counting.
+                                            timer_auto_stop_logging_start = System
+                                                    .currentTimeMillis();
+                                        } else {
+                                            // Counting already started.
+                                            if (System.currentTimeMillis()
+                                                    - timer_auto_stop_logging_start >
+                                                    TIME_BEFORE_AUTO_STOP_LOGGING) {
+                                                // Not charging for a long time. Auto stop logging.
+                                                threadBatteryDisc.interrupt();
 
-                                        // OK for the login (main) page to exit.
-                                        SharedPreferences.Editor sharedPrefEditor = sharedPref
-                                                .edit();
-                                        sharedPrefEditor.putInt(getString(R.string
-                                                .shared_preference_ok_to_exit), Utils
-                                                .OK_TO_EXIT_CONFIRMED);
-                                        sharedPrefEditor.commit();
+                                                // OK for the login (main) page to exit.
+                                                SharedPreferences.Editor sharedPrefEditor =
+                                                        sharedPref
+                                                                .edit();
+                                                sharedPrefEditor.putInt(getString(R.string
+                                                        .shared_preference_ok_to_exit), Utils
+                                                        .OK_TO_EXIT_CONFIRMED);
+                                                sharedPrefEditor.commit();
 
-                                        // Stop the logging activity.
-                                        MediaPlayer MPStopLogging = playerStopLogging();
-                                        try {
-                                            Thread.sleep(MPStopLogging.getDuration());
-                                        } catch (Exception e) {
-                                            Log.e("MPStopLogging", e.toString());
+                                                // Stop the logging activity.
+                                                MediaPlayer MPStopLogging = playerStopLogging();
+                                                try {
+                                                    Thread.sleep(MPStopLogging.getDuration());
+                                                } catch (Exception e) {
+                                                    Log.e("MPStopLogging", e.toString());
+                                                }
+                                                finish();
+                                            } else {
+                                                // Still counting. Nothing to do.
+                                            }
                                         }
-                                        finish();
                                     }
                                 }
                             });

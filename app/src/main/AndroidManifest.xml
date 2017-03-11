@@ -51,8 +51,7 @@
         <activity
             android:name="edu.purdue.combinekarttruck.MainLoginActivity"
             android:label="@string/app_name"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:launchMode="singleInstance" >
+            android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -63,8 +62,7 @@
             android:name=".BasicLoggingActivity"
             android:label="@string/title_activity_basic_logging"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleInstance" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.purdue.combinekarttruck.MainLoginActivity" />
@@ -73,8 +71,7 @@
             android:name="edu.purdue.combinekarttruck.SimplifiedCombineActivity"
             android:label="@string/title_activity_simplified_combine"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleInstance" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.purdue.combinekarttruck.MainLoginActivity" />
@@ -83,8 +80,7 @@
             android:name="edu.purdue.combinekarttruck.CombineActivity"
             android:label="@string/title_activity_combine"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
-            android:screenOrientation="landscape"
-            android:launchMode="singleInstance" >
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.purdue.combinekarttruck.MainLoginActivity" />
@@ -93,8 +89,7 @@
             android:name="edu.purdue.combinekarttruck.KartActivity"
             android:label="@string/title_activity_kart"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
-            android:screenOrientation="landscape"
-            android:launchMode="singleInstance" >
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainLoginActivity" />
@@ -103,8 +98,7 @@
             android:name="edu.purdue.combinekarttruck.TruckActivity"
             android:label="@string/title_activity_truck"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
-            android:screenOrientation="landscape"
-            android:launchMode="singleInstance" >
+            android:screenOrientation="landscape">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.purdue.combinekarttruck.MainLoginActivity" />
