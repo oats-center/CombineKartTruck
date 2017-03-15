@@ -83,7 +83,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     // For sensors.
     private boolean LOG_SENSORS_FLAG = false;
     // For other loggers.
-    private boolean LOG_WIFI_FLAG = true;
+    private boolean LOG_WIFI_FLAG = false;
     private boolean LOG_CELL_FLAG = false;
     private boolean LOG_STATE_FLAG = false;
 
@@ -380,9 +380,146 @@ public class BasicLoggingActivity extends ActionBarActivity implements
 
         if (LOG_RATE_FLAG) {
             textViewRateTestStr = getString(R.string.init_rate_test);
+
+            // Try to initiate the rate test (only when it's not doing a rate test) after waiting 0~
+            // rateTestWaitTime milliseconds.
+            final long rateTestWaitTime = 1000;
+            threadTimerRateTest = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        while (!isInterrupted()) {
+                            Random r = new Random(System.currentTimeMillis());
+                            double randomDouble = r.nextDouble();
+                            long timeToWait = (long) Math.floor(randomDouble * rateTestWaitTime);
+                            Thread.sleep(timeToWait);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Try initiate the rate test if necessary.
+                                    if (!isRateTestOnProgress) {
+                                        // Block other initiations in the future.
+                                        isRateTestOnProgress = true;
+
+                                        Random r = new Random(System.currentTimeMillis());
+                                        if (r.nextFloat() < probabilyToInitiateRateTest) {
+                                            numRateTestTrials = numRateTestTrials + 1;
+                                            textViewRateTestStr = "Starting a new test...";
+                                            textViewRateTestCounter.setText("Num of rate test trials:" +
+                                                    " " + numRateTestTrials + "\nLast result: " +
+                                                    lastRateTestResult);
+
+                                            // Utils.toastStringTextAtCenterWithLargerSize(this, "Try
+                                            // initiating a new speed test");
+                                            // Initiate the rate test.
+                                            new Thread(new Runnable() {
+                                                public void run() {
+                                                    long startTime = System.currentTimeMillis();
+                                                    try {
+                                                        // Test if the server is reachable.
+                                                        Object hostAvaiTestResult = Http.GetTest
+                                                                (urlHostAvaiTestFile);
+                                                        Log.i("HttpGetHostAvaiTest", ((String)
+                                                                hostAvaiTestResult));
+
+                                                        startTime = System.currentTimeMillis();
+                                                        textViewRateTestStr = "Started at " +
+                                                                formatterClock.format(startTime);
+
+                                                        // Log at the start.
+                                                        LogFileWrite(LOG_RATE_FLAG, mLogFileRate,
+                                                                "Start: " + startTime + ", " +
+                                                                        rateTestFileSize
+                                                                        + "\n",
+                                                                "BasicActRateWrite");
+
+                                                        Object result = Http.Get(urlRateTestFile);
+
+                                                        // Log at the end.
+                                                        long endTime = System.currentTimeMillis();
+                                                        long timeUsed = endTime - startTime;
+                                                        long downloadedSize = ((String) result)
+                                                                .length();
+
+                                                        float rate = ((float) downloadedSize) /
+                                                                timeUsed * 1000;
+
+                                                        lastRateTestResult = rate / 1024 / 1024 + " " +
+                                                                "MiB/s";
+                                                        textViewRateTestStr = "Ended at " +
+                                                                formatterClock.format(endTime) + " " +
+                                                                "(Used " + timeUsed / 1000.0 + " " +
+                                                                "seconds) with " + lastRateTestResult;
+                                                        Log.i("HttpGet", "HttpGet(Done): File length:" +
+                                                                " " + rateTestFileSize + ", " +
+                                                                "Downloaded object size: " +
+                                                                downloadedSize + ", timeUsed: " +
+                                                                timeUsed + ", Rate: " + rate);
+
+                                                        LogFileWrite(LOG_RATE_FLAG, mLogFileRate,
+                                                                "End: " + endTime + ", "
+                                                                        + timeUsed + ", " +
+                                                                        downloadedSize + ", " + rate
+                                                                        + "\n",
+                                                                "BasicActRateWrite");
+
+                                                    } catch (Exception e) {
+                                                        long endTime = System.currentTimeMillis();
+                                                        long timeUsed = endTime - startTime;
+
+                                                        String eLabel;
+                                                        String eMessage = e.toString();
+                                                        if (eMessage.contains("ConnectTimeout")) {
+                                                            eLabel = "ConnectTimeout";
+                                                            textViewRateTestStr = "Connect timed " +
+                                                                    "out...";
+                                                        } else if (eMessage.contains("EHOSTUNREACH")) {
+                                                            eLabel = "ServerUnreachable";
+                                                            textViewRateTestStr = "Server " +
+                                                                    "unreachable...";
+                                                        } else if (eMessage.contains("Not Extended")) {
+                                                            eLabel = "ServerOccupied";
+                                                            textViewRateTestStr = "Server occupied...";
+                                                        } else {
+                                                            eLabel = "UnknownError:" + eMessage;
+                                                            textViewRateTestStr = "Unknown error: " +
+                                                                    eMessage;
+                                                        }
+
+                                                        Log.e("InitRateTest", eMessage);
+
+                                                        LogFileWrite(LOG_RATE_ABORTED_FLAG,
+                                                                mLogFileRateAborted, startTime + ", "
+                                                                        + endTime + ", "
+                                                                        + timeUsed + ", " + eLabel
+                                                                        + "\n",
+                                                                "BasicActRateWrite");
+
+                                                    } finally {
+                                                        // OK to initiate other rate tests now.
+                                                        isRateTestOnProgress = false;
+                                                    }
+                                                }
+                                            }).start();
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    } catch (Exception e) {
+                        Log.e("BasicGpsLogTimer", e.toString());
+                    }
+                }
+            };
+            threadTimerRateTest.start();
         } else {
-            textViewRateTest.setVisibility(View.GONE);
-            textViewRateTestCounter.setVisibility(View.GONE);
+            if (textViewRateTest!=null) {
+                textViewRateTest.setVisibility(View.GONE);
+            }
+            if (textViewRateTestCounter!=null) {
+                textViewRateTestCounter.setVisibility(View.GONE);
+            }
+
         }
 
         // Start the timer textView.
@@ -403,138 +540,8 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                                 Date date = new Date();
                                 textViewTime.setText("Time: "
                                         + formatterClock.format(date));
-                                textViewRateTest.setText(textViewRateTestStr);
-                            }
-                        });
-                    }
-                } catch (Exception e) {
-                    Log.e("BasicGpsLogTimer", e.toString());
-                }
-            }
-        };
-        threadTimerUpdateTexts.start();
-
-        // Try to initiate the rate test (only when it's not doing a rate test) after waiting 0~
-        // rateTestWaitTime milliseconds.
-        final long rateTestWaitTime = 1000;
-        threadTimerRateTest = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    while (!isInterrupted()) {
-                        Random r = new Random(System.currentTimeMillis());
-                        double randomDouble = r.nextDouble();
-                        long timeToWait = (long) Math.floor(randomDouble * rateTestWaitTime);
-                        Thread.sleep(timeToWait);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                // Try initiate the rate test if necessary.
-                                if (!isRateTestOnProgress) {
-                                    // Block other initiations in the future.
-                                    isRateTestOnProgress = true;
-
-                                    Random r = new Random(System.currentTimeMillis());
-                                    if (r.nextFloat() < probabilyToInitiateRateTest) {
-                                        numRateTestTrials = numRateTestTrials + 1;
-                                        textViewRateTestStr = "Starting a new test...";
-                                        textViewRateTestCounter.setText("Num of rate test trials:" +
-                                                " " + numRateTestTrials + "\nLast result: " +
-                                                lastRateTestResult);
-
-                                        // Utils.toastStringTextAtCenterWithLargerSize(this, "Try
-                                        // initiating a new speed test");
-                                        // Initiate the rate test.
-                                        new Thread(new Runnable() {
-                                            public void run() {
-                                                long startTime = System.currentTimeMillis();
-                                                try {
-                                                    // Test if the server is reachable.
-                                                    Object hostAvaiTestResult = Http.GetTest
-                                                            (urlHostAvaiTestFile);
-                                                    Log.i("HttpGetHostAvaiTest", ((String)
-                                                            hostAvaiTestResult));
-
-                                                    startTime = System.currentTimeMillis();
-                                                    textViewRateTestStr = "Started at " +
-                                                            formatterClock.format(startTime);
-
-                                                    // Log at the start.
-                                                    LogFileWrite(LOG_RATE_FLAG, mLogFileRate,
-                                                            "Start: " + startTime + ", " +
-                                                                    rateTestFileSize
-                                                                    + "\n",
-                                                            "BasicActRateWrite");
-
-                                                    Object result = Http.Get(urlRateTestFile);
-
-                                                    // Log at the end.
-                                                    long endTime = System.currentTimeMillis();
-                                                    long timeUsed = endTime - startTime;
-                                                    long downloadedSize = ((String) result)
-                                                            .length();
-
-                                                    float rate = ((float) downloadedSize) /
-                                                            timeUsed * 1000;
-
-                                                    lastRateTestResult = rate / 1024 / 1024 + " " +
-                                                            "MiB/s";
-                                                    textViewRateTestStr = "Ended at " +
-                                                            formatterClock.format(endTime) + " " +
-                                                            "(Used " + timeUsed / 1000.0 + " " +
-                                                            "seconds) with " + lastRateTestResult;
-                                                    Log.i("HttpGet", "HttpGet(Done): File length:" +
-                                                            " " + rateTestFileSize + ", " +
-                                                            "Downloaded object size: " +
-                                                            downloadedSize + ", timeUsed: " +
-                                                            timeUsed + ", Rate: " + rate);
-
-                                                    LogFileWrite(LOG_RATE_FLAG, mLogFileRate,
-                                                            "End: " + endTime + ", "
-                                                                    + timeUsed + ", " +
-                                                                    downloadedSize + ", " + rate
-                                                                    + "\n",
-                                                            "BasicActRateWrite");
-
-                                                } catch (Exception e) {
-                                                    long endTime = System.currentTimeMillis();
-                                                    long timeUsed = endTime - startTime;
-
-                                                    String eLabel;
-                                                    String eMessage = e.toString();
-                                                    if (eMessage.contains("ConnectTimeout")) {
-                                                        eLabel = "ConnectTimeout";
-                                                        textViewRateTestStr = "Connect timed " +
-                                                                "out...";
-                                                    } else if (eMessage.contains("EHOSTUNREACH")) {
-                                                        eLabel = "ServerUnreachable";
-                                                        textViewRateTestStr = "Server " +
-                                                                "unreachable...";
-                                                    } else if (eMessage.contains("Not Extended")) {
-                                                        eLabel = "ServerOccupied";
-                                                        textViewRateTestStr = "Server occupied...";
-                                                    } else {
-                                                        eLabel = "UnknownError:" + eMessage;
-                                                        textViewRateTestStr = "Unknown error: " +
-                                                                eMessage;
-                                                    }
-
-                                                    Log.e("InitRateTest", eMessage);
-
-                                                    LogFileWrite(LOG_RATE_ABORTED_FLAG,
-                                                            mLogFileRateAborted, startTime + ", "
-                                                                    + endTime + ", "
-                                                                    + timeUsed + ", " + eLabel
-                                                                    + "\n",
-                                                            "BasicActRateWrite");
-
-                                                } finally {
-                                                    // OK to initiate other rate tests now.
-                                                    isRateTestOnProgress = false;
-                                                }
-                                            }
-                                        }).start();
-                                    }
+                                if (LOG_RATE_FLAG) {
+                                    textViewRateTest.setText(textViewRateTestStr);
                                 }
                             }
                         });
@@ -544,7 +551,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                 }
             }
         };
-        threadTimerRateTest.start();
+        threadTimerUpdateTexts.start();
 
         setBackgroundColor();
 
@@ -683,7 +690,9 @@ public class BasicLoggingActivity extends ActionBarActivity implements
             mSensorManager.unregisterListener(mSensorListener);
         }
         threadTimerUpdateTexts.interrupt();
-        threadTimerRateTest.interrupt();
+        if(getLogRateFlag()) {
+            threadTimerRateTest.interrupt();
+        }
 
         TextView ckt = ((TextView) findViewById(R.id.textViewCktState));
         ckt.setText(getString(R.string.ckt_state_loading));
@@ -1149,15 +1158,15 @@ public class BasicLoggingActivity extends ActionBarActivity implements
         }
     }
 
-    public static class PowerConnectionReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-            isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                    status == BatteryManager.BATTERY_STATUS_FULL;
-//            int chargePlug = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-//            boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
-//            boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
-        }
-    }
+//    public static class PowerConnectionReceiver extends BroadcastReceiver {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+//            isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+//                    status == BatteryManager.BATTERY_STATUS_FULL;
+////            int chargePlug = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+////            boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
+////            boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
+//        }
+//    }
 }

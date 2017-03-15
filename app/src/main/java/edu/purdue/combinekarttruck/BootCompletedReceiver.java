@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.util.Log;
+import android.widget.Toast;
+
+import static android.R.attr.duration;
 
 /**
  * Automatically start the MainLoginActivity on device startup.
@@ -11,17 +14,14 @@ import android.util.Log;
  * Created by Zyglabs on 3/9/2017.
  */
 
-public class RunMainLoginActivityOnStartup extends BroadcastReceiver {
+public class BootCompletedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i("AutoRunCkt", "Boot completion notification received.");
 
-        if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-            Intent i = new Intent(context, MainLoginActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
-        }
+        Intent serviceIntent = new Intent(context, AutoRunLoginService.class);
+        context.startService(serviceIntent);
     }
 
 }

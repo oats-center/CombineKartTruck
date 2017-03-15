@@ -17,22 +17,10 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 
-
-    <!--&lt;!&ndash; For auto start on boot completion. &ndash;&gt;-->
-    <!--<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
-    <!--<receiver-->
-        <!--android:enabled="true"-->
-        <!--android:exported="true"-->
-        <!--android:name="edu.purdue.combinekarttruck.RunMainLoginActivityOnStartup"-->
-        <!--android:permission="android.permission.RECEIVE_BOOT_COMPLETED">-->
-
-        <!--<intent-filter>-->
-            <!--<action android:name="android.intent.action.BOOT_COMPLETED" />-->
-            <!--<action android:name="android.intent.action.QUICKBOOT_POWERON" />-->
-            <!--<category android:name="android.intent.category.DEFAULT" />-->
-        <!--</intent-filter>-->
-    <!--</receiver>-->
+    <!-- For auto start on boot completion. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-sdk
         android:minSdkVersion="18"
@@ -54,7 +42,6 @@
             android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -103,12 +90,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.purdue.combinekarttruck.MainLoginActivity" />
         </activity>
-        <receiver android:name="edu.purdue.combinekarttruck.BasicLoggingActivity$PowerConnectionReceiver">
+        <service android:name=".AutoRunLoginService" android:label="My Service">
             <intent-filter>
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+                <action android:name="edu.purdue.combinekarttruck.AutoRunLoginService" />
+            </intent-filter>
+        </service>
+        <receiver android:enabled="true" android:exported="true"
+                  android:name=".BootCompletedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
     </application>
-
 </manifest>
