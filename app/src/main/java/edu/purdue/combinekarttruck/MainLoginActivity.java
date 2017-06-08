@@ -86,7 +86,7 @@ public class MainLoginActivity extends ActionBarActivity {
         if (numLoginActsExisted < 0) {
             numLoginActsExisted = 0;
         } else if(numLoginActsExisted >1) {
-            numLoginActsExisted = 0;
+           // numLoginActsExisted = 0;
         }
         numLoginActsExisted ++;
         if (numLoginActsExisted > 1) {
