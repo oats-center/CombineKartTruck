@@ -43,6 +43,8 @@ public class TruckActivity extends BasicLoggingActivity {
 	private File photoFile;
 	private Uri tempImageUri;
 
+	private Boolean FLAG_HIDE_PHOTO_FUNCTION = true;
+
 	@Override
 	public String getPartialLogFilePath() {
 		return this.getSharedPref().getString(Utils.SAVED_FOLDER_PATH,
@@ -60,6 +62,17 @@ public class TruckActivity extends BasicLoggingActivity {
 		}
 
 		setLogStateFlag(false);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		// Hide the views for taking a picture if necessary.
+		if(FLAG_HIDE_PHOTO_FUNCTION) {
+			findViewById(R.id.ButtonTakePicture).setVisibility(View.INVISIBLE);
+			findViewById(R.id.imageViewTicket).setVisibility(View.INVISIBLE);
+		}
 	}
 
 	@Override

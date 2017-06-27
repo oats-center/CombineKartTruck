@@ -24,7 +24,7 @@
 
     <uses-sdk
         android:minSdkVersion="18"
-        android:targetSdkVersion="23" />
+        android:targetSdkVersion="24" />
 
     <application
         android:allowBackup="true"
@@ -68,6 +68,7 @@
             android:label="@string/title_activity_combine"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
             android:screenOrientation="landscape"
+            android:resizeableActivity="false"
             android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -78,6 +79,7 @@
             android:label="@string/title_activity_kart"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
             android:screenOrientation="landscape"
+            android:resizeableActivity="false"
             android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -88,6 +90,7 @@
             android:label="@string/title_activity_truck"
             android:parentActivityName="edu.purdue.combinekarttruck.MainLoginActivity"
             android:screenOrientation="landscape"
+            android:resizeableActivity="false"
             android:configChanges="keyboardHidden|orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

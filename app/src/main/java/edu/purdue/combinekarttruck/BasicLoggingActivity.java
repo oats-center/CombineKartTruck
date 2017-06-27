@@ -37,6 +37,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +64,10 @@ import edu.purdue.combinekarttruck.utils.Utils;
 
 public class BasicLoggingActivity extends ActionBarActivity implements
         LocationListener {
+    // Set this to true to log logcat messages to a .txt file for debugging.
+    private static final boolean LOG_LOGCAT_FLAG = true;
+    private Process pWriteLogcat = null;
+    private LogFile mLogFileLogCat = new LogFile();
 
     // Determines urlHost.
     private static final boolean DEBUG_FLAG = false;
@@ -259,7 +264,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         actionBarActivityOnCreate(savedInstanceState);
-
+        getWindow().addFlags(WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY);
         setContentView(R.layout.activity_basic_gps_logging);
 
         if (savedInstanceState == null) {
@@ -345,24 +350,22 @@ public class BasicLoggingActivity extends ActionBarActivity implements
             availableSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
         }
 
-    }
-
-    public String getLoginType() {
-        return getString(R.string.vehicle_kart);
-    }
-
-    public String getPartialLogFilePath() {
-        return this.getSharedPref().getString(Utils.SAVED_FOLDER_PATH,
-                null);
-    }
-
-    public SimpleDateFormat getFormatterUnderline() {
-        return formatterUnderline;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
+        // Log the logcat messages if necessary.
+        if(LOG_LOGCAT_FLAG){
+            try {
+                // We will only log the errors.
+                pWriteLogcat = Runtime.getRuntime().exec(new String[]{"logcat", "-e", "time", "-f",
+                        new File(getLogFilesPath(),
+                                createLogFile(true, mLogFileLogCat,
+                                        "logcatErrors", "Messages from logcat:", "logLogcat")
+                                        .getName()
+                        ).getPath()
+                });
+            }
+            catch(Exception e){
+                Log.e("logcatThread", e.toString());
+            }
+        }
 
         if (LOG_WIFI_FLAG) {
             mWifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
@@ -572,10 +575,10 @@ public class BasicLoggingActivity extends ActionBarActivity implements
         batteryChargedFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         batteryStatus = this.registerReceiver(null, batteryChargedFilter);
         final Context batteryContext = this;
-        if ( deviceBeingCharged(batteryStatus) /* &&
+        if ( deviceBeingCharged(batteryStatus) &&
                 sharedPref.getBoolean(
                         getString(R.string.shared_preference_being_charged_on_login),
-                        false) */
+                        false)
                 ) {
             // The device was being charged on the login page and is also being charged now. We will
             // stop the logger automatically if the charger is disconnected after this.
@@ -645,13 +648,31 @@ public class BasicLoggingActivity extends ActionBarActivity implements
         new Thread() {
             @Override
             public void run() {
-               try {
-                   mediaPlayerStartLogging.start();
+                try {
+                    mediaPlayerStartLogging.start();
                 } catch (Exception e) {
                     Log.e("mediaPlayerStartLogging", e.toString());
                 }
             }
         }.start();
+    }
+
+    public String getLoginType() {
+        return getString(R.string.vehicle_kart);
+    }
+
+    public String getPartialLogFilePath() {
+        return this.getSharedPref().getString(Utils.SAVED_FOLDER_PATH,
+                null);
+    }
+
+    public SimpleDateFormat getFormatterUnderline() {
+        return formatterUnderline;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     public void setBackgroundColor() {
@@ -670,13 +691,14 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     }
 
     @Override
+    // Make sure the buttons in the action bar work as expected.
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                return true;
+            case android.R.id.home:
+                onBackPressed();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -684,6 +706,11 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     @Override
     public void onPause() {
         super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
 
         if (LOG_SENSORS_FLAG) {
             // Unregister sensors.
@@ -711,6 +738,11 @@ public class BasicLoggingActivity extends ActionBarActivity implements
         super.onDestroy();
 
         playerStopLogging();
+
+        // Close  the logcat messages if necessary.
+        if(LOG_LOGCAT_FLAG){
+            pWriteLogcat.destroy();
+        }
     }
 
     public MediaPlayer playerStopLogging() {

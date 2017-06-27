@@ -91,46 +91,46 @@ public class MainLoginActivity extends ActionBarActivity {
         numLoginActsExisted ++;
         if (numLoginActsExisted > 1) {
             finish();
-        }
-        setContentView(R.layout.activity_main_login);
-
-        if (savedInstanceState != null) {
-            loginType = savedInstanceState.getString(CURRENT_LOGIN_TYPE);
-            registeredIdStrings = (String[]) savedInstanceState
-                    .getCharSequenceArray(REGISTERED_IDS);
         } else {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment()).commit();
+            setContentView(R.layout.activity_main_login);
+
+            if (savedInstanceState != null) {
+                loginType = savedInstanceState.getString(CURRENT_LOGIN_TYPE);
+                registeredIdStrings = (String[]) savedInstanceState
+                        .getCharSequenceArray(REGISTERED_IDS);
+            } else {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, new PlaceholderFragment()).commit();
+            }
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Utils.toastStringTextAtCenterWithLargerSize(this, "Initializing...");
+                // Get the permission to store data / GPS / Cell, etc.
+                Utils.verifyPermissions(this);
+            }
+
+            // Check whether the GPS service is on.
+            final LocationManager manager = (LocationManager) getSystemService(Context
+                    .LOCATION_SERVICE);
+
+            if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                buildAlertMessageNoGps(this);
+            }
+
+            if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                toastStringTextAtCenterWithLargerSize(this,
+                        getString(R.string.gps_warning_may_not_working));
+
+            }
+
+            Utils.initDevDepFolderPath(this,
+                    this.getSharedPreferences(
+                            getString(R.string.shared_preference_file_key),
+                            Context.MODE_PRIVATE
+                    )
+            );
         }
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            Utils.toastStringTextAtCenterWithLargerSize(this, "Initializing...");
-            // Get the permission to store data / GPS / Cell, etc.
-            Utils.verifyPermissions(this);
-        }
-
-        // Check whether the GPS service is on.
-        final LocationManager manager = (LocationManager) getSystemService(Context
-				.LOCATION_SERVICE);
-
-        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            buildAlertMessageNoGps(this);
-        }
-
-        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            toastStringTextAtCenterWithLargerSize(this,
-                    getString(R.string.gps_warning_may_not_working));
-
-        }
-
-        Utils.initDevDepFolderPath(this,
-                this.getSharedPreferences(
-                        getString(R.string.shared_preference_file_key),
-                        Context.MODE_PRIVATE
-                )
-        );
-
     }
 
     private void buildAlertMessageNoGps(final Activity activity) {
