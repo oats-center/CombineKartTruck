@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
@@ -85,8 +86,8 @@ public class MainLoginActivity extends ActionBarActivity {
 
         if (numLoginActsExisted < 0) {
             numLoginActsExisted = 0;
-        } else if(numLoginActsExisted >1) {
-           // numLoginActsExisted = 0;
+        } else if(numLoginActsExisted > 1) {
+           // numLoginActsExisted = 1;
         }
         numLoginActsExisted ++;
         if (numLoginActsExisted > 1) {

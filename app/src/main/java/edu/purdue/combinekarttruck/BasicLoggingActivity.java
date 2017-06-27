@@ -67,6 +67,8 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     // Set this to true to log logcat messages to a .txt file for debugging.
     private static final boolean LOG_LOGCAT_FLAG = true;
     private Process pWriteLogcat = null;
+    private String filenameLogcat = null;
+    private String filePathLogcat = null;
     private LogFile mLogFileLogCat = new LogFile();
 
     // Determines urlHost.
@@ -354,12 +356,12 @@ public class BasicLoggingActivity extends ActionBarActivity implements
         if(LOG_LOGCAT_FLAG){
             try {
                 // We will only log the errors.
+                filenameLogcat = createLogFile(true, mLogFileLogCat,
+                        "logcatErrors", "Messages from logcat:", "logLogcat")
+                        .getName();
+                filePathLogcat = new File(getLogFilesPath(), filenameLogcat).getPath();
                 pWriteLogcat = Runtime.getRuntime().exec(new String[]{"logcat", "-e", "time", "-f",
-                        new File(getLogFilesPath(),
-                                createLogFile(true, mLogFileLogCat,
-                                        "logcatErrors", "Messages from logcat:", "logLogcat")
-                                        .getName()
-                        ).getPath()
+                        filePathLogcat
                 });
             }
             catch(Exception e){
@@ -509,6 +511,8 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                                 }
                             });
                         }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
                     } catch (Exception e) {
                         Log.e("BasicGpsLogTimer", e.toString());
                     }
@@ -549,6 +553,8 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                             }
                         });
                     }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 } catch (Exception e) {
                     Log.e("BasicGpsLogTimer", e.toString());
                 }
@@ -706,6 +712,14 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     @Override
     public void onPause() {
         super.onPause();
+
+        if(!sharedPref.getBoolean(
+                getString(R.string.shared_preference_being_charged_on_login),
+                false)) {
+            // Not charged at the login page. Do not need to ignore the plugged in signal.
+            finish();
+            onBackPressed();
+        }
     }
 
     @Override
@@ -742,6 +756,16 @@ public class BasicLoggingActivity extends ActionBarActivity implements
         // Close  the logcat messages if necessary.
         if(LOG_LOGCAT_FLAG){
             pWriteLogcat.destroy();
+
+            // Delete the logcat file if it is empty.
+            File logcatFile = new File(filePathLogcat);
+            if (logcatFile.length() == 0) {
+                try {
+                    new File(filePathLogcat).delete();
+                } catch (Exception e) {
+                    Log.e("DeleteEmptyLogcatFile", "onDestroy: " + e.toString());
+                }
+            }
         }
     }
 
