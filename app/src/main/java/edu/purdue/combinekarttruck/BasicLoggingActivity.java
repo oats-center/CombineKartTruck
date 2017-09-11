@@ -360,9 +360,11 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                         "logcatErrors", "Messages from logcat:", "logLogcat")
                         .getName();
                 filePathLogcat = new File(getLogFilesPath(), filenameLogcat).getPath();
-                pWriteLogcat = Runtime.getRuntime().exec(new String[]{"logcat", "-e", "time", "-f",
-                        filePathLogcat
-                });
+                // Flush logcat history.
+                Runtime.getRuntime().exec("logcat -c");
+                pWriteLogcat = Runtime.getRuntime()
+                        .exec("logcat -v long -f " +
+                                filePathLogcat);
             }
             catch(Exception e){
                 Log.e("logcatThread", e.toString());
@@ -630,7 +632,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                                                 } catch (Exception e) {
                                                     Log.e("MPStopLogging", e.toString());
                                                 }
-                                                finish();
+                                                onBackPressed();
                                             } else {
                                                 // Still counting. Nothing to do.
                                             }
@@ -717,7 +719,6 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                 getString(R.string.shared_preference_being_charged_on_login),
                 false)) {
             // Not charged at the login page. Do not need to ignore the plugged in signal.
-            finish();
             onBackPressed();
         }
     }
@@ -761,7 +762,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
             File logcatFile = new File(filePathLogcat);
             if (logcatFile.length() == 0) {
                 try {
-                    new File(filePathLogcat).delete();
+                    logcatFile.delete();
                 } catch (Exception e) {
                     Log.e("DeleteEmptyLogcatFile", "onDestroy: " + e.toString());
                 }
