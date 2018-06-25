@@ -85,7 +85,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     public String stringLoggedToCell;
     public Thread threadTimerUpdateTexts, threadTimerRateTest, threadBatteryDisc;
     // For the rate test.
-    private boolean LOG_RATE_FLAG = false;
+    private boolean LOG_RATE_FLAG = true;
     private boolean LOG_RATE_ABORTED_FLAG = LOG_RATE_FLAG && true;
     // For sensors.
     private boolean LOG_SENSORS_FLAG = false;
@@ -96,7 +96,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
 
     // ----------- Start of parameters set by the user -----------
     // Only try to initiate a new rate test when this is false.
-    private String urlHost = DEBUG_FLAG ? "http://192.168.1.80/" : "http://192.168.1.2/";
+    private String urlHost = DEBUG_FLAG ? "http://192.168.1.80/" : "http://192.168.0.1/";
     private String rateTestFileSize = "50MB"; //"20MB";
     private String urlRateTestFile = urlHost + rateTestFileSize + ".zip.txt";
     private String urlHostAvaiTestFile = urlHost + "hostAvaiTest.txt";
