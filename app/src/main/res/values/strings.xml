@@ -79,6 +79,9 @@
     <string name="init_rate_test">Initiating the rate test...</string>
     <string name="init_rate_test_counter">Num of rate test trials: 0</string>
 
+    <!-- Traceroute Log -->
+    <string name="traceroute_log_file_head"></string>
+
     <!-- GPS Layout -->
     <string name="lat_gps_text_view_default">Lat: Loading…</string>
     <string name="lon_gps_text_view_default">Lon: Loading…</string>
@@ -125,5 +128,16 @@
     <string name="title_activity_kart">KartActivity</string>
     <string name="title_activity_truck">TruckActivity</string>
     <string name="title_activity_basic_logging">BasicLoggingActivity</string>
+
+    <!-- Traceroute strings -->
+    <string name="hello_world">Hello world!</string>
+    <string name="activity_button">Launch</string>
+    <string name="no_connectivity">No connectivity</string>
+    <string name="no_text">Please enter an ip or URL</string>
+    <string name="no_ping">Are you sure about the URL?</string>
+    <string name="string_test">test</string>
+    <string name="error">An error occurred, please try again</string>
+    <string name="timeout">Timeout</string>
+    <string name="placeholder">www.google.fr</string>
 
 </resources>
