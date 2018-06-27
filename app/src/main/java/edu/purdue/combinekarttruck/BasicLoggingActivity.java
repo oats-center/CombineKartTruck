@@ -1,6 +1,5 @@
 package edu.purdue.combinekarttruck;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -31,6 +30,7 @@ import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthWcdma;
 import android.telephony.TelephonyManager;
+import android.util.JsonWriter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -41,9 +41,13 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.og.tracerouteping.network.TracerouteContainer;
+import com.og.tracerouteping.network.TracerouteWithPing;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -64,6 +68,8 @@ import edu.purdue.combinekarttruck.utils.Utils;
 
 public class BasicLoggingActivity extends ActionBarActivity implements
         LocationListener {
+    public static final String tag = "BasicLoggingActivity";
+
     // Set this to true to log logcat messages to a .txt file for debugging.
     private static final boolean LOG_LOGCAT_FLAG = true;
     private Process pWriteLogcat = null;
@@ -93,6 +99,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     private boolean LOG_WIFI_FLAG = false;
     private boolean LOG_CELL_FLAG = false;
     private boolean LOG_STATE_FLAG = false;
+    private boolean LOG_TRACEROUTE_FLAG = true;
 
     // ----------- Start of parameters set by the user -----------
     // Only try to initiate a new rate test when this is false.
@@ -122,6 +129,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     private LogFile mLogFileRateAborted = new LogFile();
 
     private LogFile mLogFileSensors = new LogFile();
+    private LogFile mLogFileTraceRoute = new LogFile();
     private LocationManager mLocationManager;
     private String textViewRateTestStr;
     private TextView textViewRateTest;
@@ -142,6 +150,12 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     private IntentFilter batteryChargedFilter;
     private Intent batteryStatus;
     private static boolean isCharging;
+
+    private String mTracerouteHost = "192.168.0.1"; // Use an IP to avoid bugs in TraceroutePing
+    private TracerouteWithPing mTraceroute;
+    private ArrayList<TracerouteContainer> mTraces = new ArrayList<>();
+    private boolean mTracerouteRun = false;
+    private int mTracerouteMaxTtl = 6;
 
     private SensorEventListener mSensorListener = new SensorEventListener() {
         @Override
@@ -663,6 +677,12 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                 }
             }
         }.start();
+
+        if (LOG_TRACEROUTE_FLAG) {
+            mTracerouteRun = true;
+            mTraceroute = new TracerouteWithPing(this);
+            mTraceroute.executeTraceroute(mTracerouteHost, mTracerouteMaxTtl);
+        }
     }
 
     public String getLoginType() {
@@ -726,6 +746,8 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     @Override
     protected void onStop() {
         super.onStop();
+
+        mTracerouteRun = false;
 
         if (LOG_SENSORS_FLAG) {
             // Unregister sensors.
@@ -1042,6 +1064,44 @@ public class BasicLoggingActivity extends ActionBarActivity implements
 
     }
 
+    public void tracerouteAddTrace(TracerouteContainer trace) {
+        mTraces.add(trace);
+    }
+
+    public void tracerouteComplete(boolean complete) {
+        Log.d(tag, mTraces.toString());
+        StringWriter data = new StringWriter();
+        JsonWriter writer = new JsonWriter(data);
+
+        try {
+            writer.beginObject();
+            writer.name("complete").value(complete);
+            writer.name("route");
+            writer.beginArray();
+            for (TracerouteContainer trace : mTraces) {
+                trace.toJson(writer);
+            }
+            writer.endArray();
+            writer.endObject();
+        } catch (IOException e) {
+            Log.e(tag, e.getStackTrace().toString());
+            mTraces.clear();
+            return;
+        }
+
+        if (mTracerouteRun) { // closeLogFile returns a new (but immediately closed) log file
+            LogFileWrite(LOG_TRACEROUTE_FLAG, mLogFileTraceRoute,
+                    data.toString() + "\n", "TracerouteWrite");
+        }
+
+        mTraces.clear();
+
+        if (mTracerouteRun) {
+            mTraceroute = new TracerouteWithPing(this);
+            mTraceroute.executeTraceroute(mTracerouteHost, mTracerouteMaxTtl);
+        }
+    }
+
     public void createLogFiles() {
         mLogFileGps = createLogFile(LOG_GPS_FLAG, mLogFileGps,
                 "gps", getString(R.string.gps_log_file_head), "BasicGpsLogCreate");
@@ -1065,6 +1125,9 @@ public class BasicLoggingActivity extends ActionBarActivity implements
         mLogFileSensors = createLogFile(LOG_SENSORS_FLAG, mLogFileSensors,
                 "sensors", LOG_SENSORS_FLAG ? availableSensors.toString() + "\n" : "",
                 "BasicSensorsLogCreate");
+
+        mLogFileTraceRoute = createLogFile(LOG_TRACEROUTE_FLAG, mLogFileTraceRoute, "traceroute",
+                getString(R.string.traceroute_log_file_head), "TraceRouteCreate");
     }
 
     public LogFile createLogFile(boolean logFlag, LogFile logFile,
@@ -1111,6 +1174,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
         mLogFileRateAborted = closeLogFile(LOG_RATE_ABORTED_FLAG, mLogFileRateAborted,
                 "closeRateAbortedLog");
         mLogFileSensors = closeLogFile(LOG_SENSORS_FLAG, mLogFileSensors, "closeSensorsLog");
+        mLogFileTraceRoute = closeLogFile(LOG_TRACEROUTE_FLAG, mLogFileTraceRoute, "closeTracerouteLog");
     }
 
     public void LogFileWrite(boolean logFlag, LogFile logFile, String string, String errorTag) {
