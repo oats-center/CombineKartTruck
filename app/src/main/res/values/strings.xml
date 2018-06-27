@@ -140,4 +140,6 @@
     <string name="timeout">Timeout</string>
     <string name="placeholder">www.google.fr</string>
 
+    <string name="init_traceroute_hops">Traceroute Hops: </string>
+
 </resources>
