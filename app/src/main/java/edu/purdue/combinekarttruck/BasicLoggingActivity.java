@@ -156,6 +156,8 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     private ArrayList<TracerouteContainer> mTraces = new ArrayList<>();
     private boolean mTracerouteRun = false;
     private int mTracerouteMaxTtl = 6;
+    private TextView mTextViewTracerouteHops;
+    private int mTracerouteCounter = 0;
 
     private SensorEventListener mSensorListener = new SensorEventListener() {
         @Override
@@ -679,6 +681,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
         }.start();
 
         if (LOG_TRACEROUTE_FLAG) {
+            mTextViewTracerouteHops = ((TextView) findViewById(R.id.textViewTracerouteHops));
             mTracerouteRun = true;
             mTraceroute = new TracerouteWithPing(this);
             mTraceroute.executeTraceroute(mTracerouteHost, mTracerouteMaxTtl);
@@ -1069,6 +1072,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     }
 
     public void tracerouteComplete(boolean complete) {
+        mTracerouteCounter++;
         Log.d(tag, mTraces.toString());
         StringWriter data = new StringWriter();
         JsonWriter writer = new JsonWriter(data);
@@ -1092,6 +1096,8 @@ public class BasicLoggingActivity extends ActionBarActivity implements
         if (mTracerouteRun) { // closeLogFile returns a new (but immediately closed) log file
             LogFileWrite(LOG_TRACEROUTE_FLAG, mLogFileTraceRoute,
                     data.toString() + "\n", "TracerouteWrite");
+
+            mTextViewTracerouteHops.setText(getText(R.string.init_traceroute_hops).toString() + mTraces.size() + " (Test count:" + mTracerouteCounter + ")");
         }
 
         mTraces.clear();

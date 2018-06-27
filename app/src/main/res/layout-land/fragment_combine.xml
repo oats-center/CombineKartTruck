@@ -15,23 +15,33 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <TextView
+                android:id="@+id/textViewRateTestResult"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="@string/init_rate_test"
-                android:id="@+id/textViewRateTestResult" />
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
+                android:id="@+id/textViewRateTestCounter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:baselineAligned="false"
                 android:text="@string/init_rate_test_counter"
-                android:id="@+id/textViewRateTestCounter" />
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/textViewTracerouteHops"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:text="@string/init_traceroute_hops"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                tools:text="Hops: " />
 
         </LinearLayout>
 
