@@ -24,7 +24,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/init_rate_test"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <TextView
                 android:id="@+id/textViewRateTestCounter"
@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:baselineAligned="false"
                 android:text="@string/init_rate_test_counter"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <TextView
                 android:id="@+id/textViewTracerouteHops"
@@ -41,7 +41,7 @@
                 android:baselineAligned="false"
                 android:text="@string/init_traceroute_hops"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                tools:text="Hops: " />
+                tools:text="Hops: "/>
 
         </LinearLayout>
 

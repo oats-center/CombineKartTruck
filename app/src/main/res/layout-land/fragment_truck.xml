@@ -32,6 +32,15 @@
                 android:text="@string/init_rate_test_counter"
                 android:id="@+id/textViewRateTestCounter" />
 
+            <TextView
+                android:id="@+id/textViewTracerouteHops"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:text="@string/init_traceroute_hops"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                tools:text="Hops: " />
+
         </LinearLayout>
 
         <LinearLayout

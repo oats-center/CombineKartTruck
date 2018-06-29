@@ -92,14 +92,15 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     public Thread threadTimerUpdateTexts, threadTimerRateTest, threadBatteryDisc;
     // For the rate test.
     private boolean LOG_RATE_FLAG = true;
+    // Change true below to false if only successful rate test results are needed.
     private boolean LOG_RATE_ABORTED_FLAG = LOG_RATE_FLAG && true;
+    private boolean LOG_TRACEROUTE_FLAG = true;
     // For sensors.
     private boolean LOG_SENSORS_FLAG = false;
     // For other loggers.
     private boolean LOG_WIFI_FLAG = false;
     private boolean LOG_CELL_FLAG = false;
     private boolean LOG_STATE_FLAG = false;
-    private boolean LOG_TRACEROUTE_FLAG = true;
 
     // ----------- Start of parameters set by the user -----------
     // Only try to initiate a new rate test when this is false.
@@ -155,7 +156,9 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     private TracerouteWithPing mTraceroute;
     private ArrayList<TracerouteContainer> mTraces = new ArrayList<>();
     private boolean mTracerouteRun = false;
-    private int mTracerouteMaxTtl = 6;
+    // Currently, 1 server + up to 4 antennas.
+    private int mTracerouteMaxTtl = 5;
+    private String textViewTracerouteStr;
     private TextView mTextViewTracerouteHops;
     private int mTracerouteCounter = 0;
 
@@ -401,6 +404,9 @@ public class BasicLoggingActivity extends ActionBarActivity implements
         textViewRateTest = ((TextView) findViewById(R.id.textViewRateTestResult));
         textViewRateTestCounter = ((TextView) findViewById(R.id.textViewRateTestCounter));
 
+        // Start the trace route textView.
+        mTextViewTracerouteHops = ((TextView) findViewById(R.id.textViewTracerouteHops));
+
         if (LOG_RATE_FLAG) {
             textViewRateTestStr = getString(R.string.init_rate_test);
 
@@ -568,6 +574,9 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                                 if (LOG_RATE_FLAG) {
                                     textViewRateTest.setText(textViewRateTestStr);
                                 }
+                                if (LOG_TRACEROUTE_FLAG) {
+                                    mTextViewTracerouteHops.setText(textViewTracerouteStr);
+                                }
                             }
                         });
                     }
@@ -680,11 +689,14 @@ public class BasicLoggingActivity extends ActionBarActivity implements
             }
         }.start();
 
+
         if (LOG_TRACEROUTE_FLAG) {
-            mTextViewTracerouteHops = ((TextView) findViewById(R.id.textViewTracerouteHops));
             mTracerouteRun = true;
             mTraceroute = new TracerouteWithPing(this);
             mTraceroute.executeTraceroute(mTracerouteHost, mTracerouteMaxTtl);
+        } else {
+            // No need to show the trace route results.
+            mTextViewTracerouteHops.setVisibility(View.GONE);
         }
     }
 
@@ -1097,7 +1109,8 @@ public class BasicLoggingActivity extends ActionBarActivity implements
             LogFileWrite(LOG_TRACEROUTE_FLAG, mLogFileTraceRoute,
                     data.toString() + "\n", "TracerouteWrite");
 
-            mTextViewTracerouteHops.setText(getText(R.string.init_traceroute_hops).toString() + mTraces.size() + " (Test count:" + mTracerouteCounter + ")");
+            textViewTracerouteStr = getString(R.string.init_traceroute_hops) + mTraces
+                    .size() + " (Trial #:" + mTracerouteCounter + ")";
         }
 
         mTraces.clear();
@@ -1189,8 +1202,7 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                 logFile.getWriter().write(string);
 
                 // Make sure that the data is recorded immediately so that the auto sync (e.g.
-                // for Goolge
-                // Drive) works.
+                // for Google Drive) works.
                 logFile.getWriter().flush();
                 logFile.getFile().setLastModified(System.currentTimeMillis());
             } catch (IOException e) {

@@ -63,7 +63,7 @@ public class TracerouteWithPing {
 	private BasicLoggingActivity context;
 
 	// timeout handling
-	private static final int TIMEOUT = 1000;
+	private static final int TIMEOUT = 300;
 	private Handler handlerTimeout;
 	private static Runnable runnableTimeout;
 

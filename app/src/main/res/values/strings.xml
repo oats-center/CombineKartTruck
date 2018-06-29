@@ -77,7 +77,7 @@
     <string name="rate_aborted_log_file_head">"% systemTimeStart (ms), systemTimeEnd (ms), timeUsed (ms), errorMessage\n"</string>
 
     <string name="init_rate_test">Initiating the rate test...</string>
-    <string name="init_rate_test_counter">Num of rate test trials: 0</string>
+    <string name="init_rate_test_counter">Num of rate test trials: not yet available ...</string>
 
     <!-- Traceroute Log -->
     <string name="traceroute_log_file_head"></string>

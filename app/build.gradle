@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "25.0.0"
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "edu.purdue.combinekarttruck"
@@ -21,7 +21,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:21.0.1'
-    compile 'com.google.android.gms:play-services:9.0.2'
-    compile 'com.android.support:appcompat-v7:22.0.0'
+    api 'com.android.support:support-v4:21.0.1'
+    api 'com.android.support:appcompat-v7:22.0.0'
+    api 'com.google.android.gms:play-services:9.0.2'
 }
