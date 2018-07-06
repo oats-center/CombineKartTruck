@@ -91,10 +91,12 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     public String stringLoggedToCell;
     public Thread threadTimerUpdateTexts, threadTimerRateTest, threadBatteryDisc;
     // For the rate test.
-    private boolean LOG_RATE_FLAG = true;
+    private boolean LOG_RATE_FLAG = false;
     // Change true below to false if only successful rate test results are needed.
     private boolean LOG_RATE_ABORTED_FLAG = LOG_RATE_FLAG && true;
-    private boolean LOG_TRACEROUTE_FLAG = true;
+    // Please hardcode mTracerouteIPs if traceroute is needed.
+    private boolean LOG_TRACEROUTE_FLAG = false;
+
     // For sensors.
     private boolean LOG_SENSORS_FLAG = false;
     // For other loggers.
@@ -152,13 +154,15 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     private Intent batteryStatus;
     private static boolean isCharging;
 
-    private String mTracerouteHost = "192.168.0.1"; // Use an IP to avoid bugs in TraceroutePing
+    // Use IPs to avoid bugs in TraceroutePing.
+    private String[] mTracerouteIPs = new String[15];
+
     private TracerouteWithPing mTraceroute;
     private ArrayList<TracerouteContainer> mTraces = new ArrayList<>();
     private boolean mTracerouteRun = false;
-    // Currently, 1 server + up to 4 antennas.
-    private int mTracerouteMaxTtl = 5;
-    private String textViewTracerouteStr;
+    // Currently, everything should be reachable with one hop if it is present in the network.
+    private int mTracerouteMaxTtl = 1;
+    private String textViewTracerouteStr = "Initializing traceroute ...";
     private TextView mTextViewTracerouteHops;
     private int mTracerouteCounter = 0;
 
@@ -553,6 +557,22 @@ public class BasicLoggingActivity extends ActionBarActivity implements
 
         }
 
+        if (LOG_TRACEROUTE_FLAG) {
+            // Initialize IPs to trace.
+            mTracerouteIPs[0] = "192.168.0.1"; // Server (ISOBlue)
+            mTracerouteIPs[1] = "192.168.0.2"; // Antennas
+            mTracerouteIPs[2] = "192.168.0.3";
+            mTracerouteIPs[3] = "192.168.0.4";
+            mTracerouteIPs[4] = "192.168.0.5";
+
+            mTracerouteRun = true;
+            mTraceroute = new TracerouteWithPing(this);
+            mTraceroute.executeTraceroute(mTracerouteIPs[mTracerouteCounter%5], mTracerouteMaxTtl);
+        } else {
+            // No need to show the trace route results.
+            mTextViewTracerouteHops.setVisibility(View.GONE);
+        }
+
         // Start the timer textView.
         textViewTime = ((TextView) findViewById(R.id.textViewTime));
         formatterClock = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss",
@@ -571,11 +591,11 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                                 Date date = new Date();
                                 textViewTime.setText("Time: "
                                         + formatterClock.format(date));
-                                if (LOG_RATE_FLAG) {
-                                    textViewRateTest.setText(textViewRateTestStr);
-                                }
                                 if (LOG_TRACEROUTE_FLAG) {
                                     mTextViewTracerouteHops.setText(textViewTracerouteStr);
+                                }
+                                if (LOG_RATE_FLAG) {
+                                    textViewRateTest.setText(textViewRateTestStr);
                                 }
                             }
                         });
@@ -688,16 +708,6 @@ public class BasicLoggingActivity extends ActionBarActivity implements
                 }
             }
         }.start();
-
-
-        if (LOG_TRACEROUTE_FLAG) {
-            mTracerouteRun = true;
-            mTraceroute = new TracerouteWithPing(this);
-            mTraceroute.executeTraceroute(mTracerouteHost, mTracerouteMaxTtl);
-        } else {
-            // No need to show the trace route results.
-            mTextViewTracerouteHops.setVisibility(View.GONE);
-        }
     }
 
     public String getLoginType() {
@@ -1084,13 +1094,13 @@ public class BasicLoggingActivity extends ActionBarActivity implements
     }
 
     public void tracerouteComplete(boolean complete) {
-        mTracerouteCounter++;
         Log.d(tag, mTraces.toString());
         StringWriter data = new StringWriter();
         JsonWriter writer = new JsonWriter(data);
 
         try {
             writer.beginObject();
+            writer.name("tracerouteip").value(mTracerouteIPs[mTracerouteCounter%5]);
             writer.name("complete").value(complete);
             writer.name("route");
             writer.beginArray();
@@ -1109,15 +1119,17 @@ public class BasicLoggingActivity extends ActionBarActivity implements
             LogFileWrite(LOG_TRACEROUTE_FLAG, mLogFileTraceRoute,
                     data.toString() + "\n", "TracerouteWrite");
 
-            textViewTracerouteStr = getString(R.string.init_traceroute_hops) + mTraces
-                    .size() + " (Trial #:" + mTracerouteCounter + ")";
+            textViewTracerouteStr = "\nTrace # " + new Integer(mTracerouteCounter+1)
+                    .toString() +" to IP #" + new Integer(mTracerouteCounter%5+1).toString();
+            // + (complete?"":" FAILED");
         }
 
         mTraces.clear();
 
         if (mTracerouteRun) {
+            mTracerouteCounter++;
             mTraceroute = new TracerouteWithPing(this);
-            mTraceroute.executeTraceroute(mTracerouteHost, mTracerouteMaxTtl);
+            mTraceroute.executeTraceroute(mTracerouteIPs[mTracerouteCounter%5], mTracerouteMaxTtl);
         }
     }
 
