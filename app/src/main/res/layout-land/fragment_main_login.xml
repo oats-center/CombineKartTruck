@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="edu.purdue.combinekarttruck.MainActivityLogin$PlaceholderFragment" >
+    tools:context="edu.purdue.combinekarttruck.MainLoginActivity$PlaceholderFragment" >
 
     <TextView
         android:id="@+id/textView00"
@@ -77,7 +77,7 @@
 
                 <TextView
                     android:id="@+id/textView2"
-                    android:layout_width="0dp"
+                    android:layout_width="435dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="10"
                     android:text="@string/login_type_message"
@@ -157,10 +157,11 @@
                     android:id="@+id/editTextLoginVehicleId"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
+                    android:layout_gravity="end"
                     android:hint="@string/login_id_hint"
+                    android:inputType="text"
                     android:singleLine="true"
-                    android:textSize="45sp" >
+                    android:textSize="45sp">
 
                     <requestFocus />
                 </EditText>
@@ -169,7 +170,7 @@
                     android:id="@+id/button_pick_from_a_list"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
+                    android:layout_gravity="end"
                     android:layout_marginTop="10dp"
                     android:background="@color/color_login_ok"
                     android:onClick="pickFromList"
